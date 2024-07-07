@@ -96,7 +96,7 @@ target_link_libraries(YOUR_EXECUTABLE CLFML::face_detector)
 ```
 Or manually clone this repo and add the library to your project using:
 ```cmake
-add_subdirectory(Face_detector.Cpp)
+add_subdirectory(Face_Detector.Cpp)
 ...
 target_link_libraries(YOUR_EXECUTABLE CLFML::face_detector)
 ```
