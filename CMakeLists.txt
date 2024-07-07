@@ -4,8 +4,14 @@ project(face_detector VERSION 3.11.3 LANGUAGES CXX)
 
 set(MAIN_PROJECT OFF)
 
+# Optionally build the example
+option(BUILD_EXAMPLE_PROJECTS "Build example projects" ON)
+
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(CMAKE_CXX_STANDARD 17)
     set(MAIN_PROJECT ON)
+else()
+    set(BUILD_EXAMPLE_PROJECTS OFF)
 endif()
 
 if (POLICY CMP0077)
@@ -39,10 +45,11 @@ endif()
 set(FACE_DETECTOR_MODEL_DIR ${CMAKE_CURRENT_LIST_DIR}/models)
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DFACE_DETECTOR_MODEL_DIR="${FACE_DETECTOR_MODEL_DIR}")
 
-# Optionally build the example
-option(BUILD_EXAMPLE_PROJECTS "Build example projects" ON)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
-if(MAIN_PROJECT AND BUILD_EXAMPLE_PROJECTS)
+if(BUILD_EXAMPLE_PROJECTS)
   add_executable(face_roi_demo ${CMAKE_CURRENT_LIST_DIR}/example/face_roi_demo/demo.cpp)
   target_link_libraries(face_roi_demo PUBLIC face_detector)
 endif()
+
+unset(BUILD_EXAMPLE_PROJECTS CACHE)
