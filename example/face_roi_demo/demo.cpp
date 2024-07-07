@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     const uint16_t camera_fps = 30;
     const uint32_t width = 640;
     const uint32_t height = 480;
-    cv::VideoCapture cam(camera_index, cv::CAP_V4L2);
+    cv::VideoCapture cam(camera_index);
 
     if (cam.isOpened() == false)
     {
