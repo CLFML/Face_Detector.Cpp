@@ -43,6 +43,6 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC -DFACE_DETECTOR_MODEL_DIR="${F
 option(BUILD_EXAMPLE_PROJECTS "Build example projects" ON)
 
 if(MAIN_PROJECT AND BUILD_EXAMPLE_PROJECTS)
-  add_executable(face_roi_demo ${CMAKE_CURRENT_LIST_DIR}/example/Get_Face_Roi/demo.cpp)
+  add_executable(face_roi_demo ${CMAKE_CURRENT_LIST_DIR}/example/face_roi_demo/demo.cpp)
   target_link_libraries(face_roi_demo PUBLIC face_detector)
 endif()
