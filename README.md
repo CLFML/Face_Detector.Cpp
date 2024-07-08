@@ -3,14 +3,13 @@ Face detector using the [BlazeFace Mediapipe model](https://storage.googleapis.c
 
 - Plain C/C++ implementation with minimal dependencies (Tensorflow Lite + OpenCV)
 - Google MediaPipe models without the Mediapipe framework
-- Support for Coral Edge TPU (Todo!)
+- Support for Coral Edge TPU
 - Runs on ARM as well (Tested on RPI 3,4 and 5)
 
 ## API Features
 This library offers support for:
 - Face detection
 - Face ROI (Region of interest) detection
-- Face Landmarking (6 landmarks) (TODO!)
 
 ### Face detection
 This is some example code for face detection:
@@ -60,12 +59,41 @@ Before using this library you will need the following packages installed:
 - CMake
 - Ninja (**Optional**, but preferred)
 
-### Running the examples
+### Running the examples (CPU)
 1. Clone this repo
 2. Run:
 ```bash
 cmake . -B build -G Ninja
 ```
+3. Let CMake generate and run:
+```bash
+cd build && ninja
+```
+4. After building you can run (linux & mac):
+```bash
+./face_roi_demo
+```
+or (if using windows)
+```bat
+face_roi_demo.exe
+```
+### Running the examples (Coral TPU)
+0. Make sure you got:
+- The newest libedgetpu library installed (based on TF 2.16.1); If not sure compile it from [source](https://github.com/google-coral/libedgetpu)!
+- libusb-1.0-0-dev package or installed (only when using Linux)\
+- When using Linux your udev configured correctly (is done automatically when compiling from source!)
+1. Clone this repo
+2. Run:
+```bash
+cmake . -B build -G Ninja -DFACE_DETECTOR_ENABLE_CORAL_TPU=ON
+```
+or add this block to your settings.json in vscode:
+```json
+"cmake.configureSettings": {
+    "FACE_DETECTOR_ENABLE_CORAL_TPU": "ON"
+}
+```
+
 3. Let CMake generate and run:
 ```bash
 cd build && ninja
@@ -102,8 +130,6 @@ target_link_libraries(YOUR_EXECUTABLE CLFML::face_detector)
 ```
 
 ## Todo
-- Add delegate for Coral TPU
-- Add functionality for head-pose estimation (using the landmarks)
 - Add documentation
 - Add ROS interface
 - Add language bindings for Python, C# and Java
