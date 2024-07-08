@@ -6,6 +6,124 @@
 namespace CLFML::FaceDetection
 {
 
+    cv::Vec3f FaceDetector::estimate_head_pose(const std::vector<cv::Point2f>& keypoints)
+    {
+        if (m_keypoints.size() < 6) return cv::Vec3f(0, 0, 0);
+
+        // Assuming keypoints order: Left eye, Right eye, Nose tip, Mouth, Left eye tragion, Right eye tragion
+        cv::Point2f left_eye = keypoints[0];
+        cv::Point2f right_eye = keypoints[1];
+        cv::Point2f nose = keypoints[2];
+        cv::Point2f mouth = keypoints[3];
+
+        // Estimate depth using inter-ocular distance
+        float eye_distance = cv::norm(right_eye - left_eye);
+        float depth = eye_distance * 2.5;
+
+        // Estimate 3D coordinates
+        cv::Vec3f nose_3d(nose.x, nose.y, 0);
+        cv::Vec3f left_eye_3d(left_eye.x, left_eye.y, depth/2);
+        cv::Vec3f right_eye_3d(right_eye.x, right_eye.y, depth/2);
+        cv::Vec3f mouth_3d(mouth.x, mouth.y, depth/4);
+
+        cv::Vec3f face_normal = cv::normalize(nose_3d - (left_eye_3d + right_eye_3d) * 0.5);
+        cv::Vec3f up_vector = cv::normalize(mouth_3d - (left_eye_3d + right_eye_3d) * 0.5);
+        cv::Vec3f right_vector = cv::normalize(right_eye_3d - left_eye_3d);
+
+        cv::Matx33f rotation_matrix(
+            right_vector[0], up_vector[0], face_normal[0],
+            right_vector[1], up_vector[1], face_normal[1],
+            right_vector[2], up_vector[2], face_normal[2]
+        );
+    
+        // // Estimate 3D coordinates
+        // cv::Vec3f top(nose.x, nose.y - eye_distance/2, depth/2);
+        // cv::Vec3f bottom(mouth.x, mouth.y, depth/2);
+        // cv::Vec3f left(left_eye.x, (left_eye.y + right_eye.y)/2, depth/2);
+        // cv::Vec3f right(right_eye.x, (left_eye.y + right_eye.y)/2, depth/2);
+
+        // cv::Vec3f x_axis, y_axis, z_axis;
+        // cv::normalize(bottom - top, y_axis);
+        // cv::normalize(right - left, x_axis);
+        // cv::normalize(cross_vectors(x_axis, y_axis), z_axis);
+        // x_axis = cross_vectors(y_axis, z_axis);
+
+        // cv::Matx33f rotation_matrix(x_axis[0], y_axis[0], z_axis[0],
+        //                             x_axis[1], y_axis[1], z_axis[1],
+        //                             x_axis[2], y_axis[2], z_axis[2]);
+
+        return rotation_matrix_to_euler_angle(rotation_matrix);
+    }    
+
+    // cv::Vec3f FaceDetector::rotation_matrix_to_euler_angle(const cv::Matx33f& R)
+    // {
+    //     float sy = std::sqrt(R(0,0) * R(0,0) +  R(1,0) * R(1,0));
+    //     bool singular = sy < 1e-6;
+    //     float x, y, z;
+    //     if (!singular) {
+    //         x = std::atan2(R(2,1), R(2,2));
+    //         y = std::atan2(-R(2,0), sy);
+    //         z = std::atan2(R(1,0), R(0,0));
+    //     } else { 
+    //         x = std::atan2(-R(1,2), R(1,1));
+    //         y = std::atan2(-R(2,0), sy);
+    //         z = 0;
+    //     }
+    //     return cv::Vec3f(x, y, z);
+    // }
+
+    cv::Vec3f FaceDetector::rotation_matrix_to_euler_angle(const cv::Matx33f& r) {
+        double thetaX, thetaY, thetaZ;
+
+        if (r(1,0) < 1) {
+            if (r(1,0) > -1) {
+                thetaZ = std::asin(r(1,0));
+                thetaY = std::atan2(-r(2,0), r(0,0));
+                thetaX = std::atan2(-r(1,2), r(1,1));
+            } else {
+                thetaZ = -CV_PI / 2;
+                thetaY = -std::atan2(r(2,1), r(2,2));
+                thetaX = 0;
+            }
+        } else {
+            thetaZ = CV_PI / 2;
+            thetaY = std::atan2(r(2,1), r(2,2));
+            thetaX = 0;
+        }
+
+        if (std::isnan(thetaX)) thetaX = 0;
+        if (std::isnan(thetaY)) thetaY = 0;
+        if (std::isnan(thetaZ)) thetaZ = 0;
+
+        return cv::Vec3f(-thetaX, -thetaY, -thetaZ);
+    }
+
+    cv::Vec3f FaceDetector::cross_vectors(const cv::Vec3f& v1, const cv::Vec3f& v2)
+    {
+        return cv::Vec3f(v1[1]*v2[2] - v1[2]*v2[1],
+                        v1[2]*v2[0] - v1[0]*v2[2],
+                        v1[0]*v2[1] - v1[1]*v2[0]);
+    }
+    
+    void FaceDetector::draw_keypoints(cv::Mat& image)
+    {
+        if (m_keypoints.empty()) return;
+
+        const std::vector<cv::Scalar> colors = {
+            cv::Scalar(255, 0, 0),   // Left eye (Blue)
+            cv::Scalar(0, 255, 0),   // Right eye (Green)
+            cv::Scalar(0, 0, 255),   // Nose tip (Red)
+            cv::Scalar(255, 255, 0), // Mouth (Cyan)
+            cv::Scalar(255, 0, 255), // Left eye tragion (Magenta)
+            cv::Scalar(0, 255, 255)  // Right eye tragion (Yellow)
+        };
+
+        for (size_t i = 0; i < m_keypoints.size(); ++i) {
+            cv::circle(image, m_keypoints[i], 3, colors[i], -1);
+            cv::putText(image, std::to_string(i), m_keypoints[i], cv::FONT_HERSHEY_SIMPLEX, 0.5, colors[i], 1);
+        }
+    }
+
     std::vector<cv::Point2f> FaceDetector::get_keypoints_from_model_box(int index)
     {
         cv::Rect2f scaling_anchor = m_anchors[index];
@@ -95,6 +213,7 @@ namespace CLFML::FaceDetection
         {
             m_roi_from_model = get_roi_from_model_box(index_of_best_score);
             m_keypoints = get_keypoints_from_model_box(index_of_best_score);
+            m_head_pose = estimate_head_pose(m_keypoints);
         }
 
         return roi_detected;
@@ -216,10 +335,22 @@ namespace CLFML::FaceDetection
         if (m_roi_detected != -1)
         {
             m_roi = scale_roi_to_image(camera_frame);
+
+            // Scale keypoints to input image size
+            for (auto& kp : m_keypoints)
+            {
+                kp.x *= camera_frame.cols;
+                kp.y *= camera_frame.rows;
+            }
+            
+            // Re-estimate head pose with scaled keypoints
+            m_head_pose = estimate_head_pose(m_keypoints);            
         }
         else
         {
             m_roi = cv::Rect();
+            m_keypoints.clear();
+            m_head_pose = cv::Vec3f(0, 0, 0);            
         }
     }
 
@@ -360,7 +491,12 @@ namespace CLFML::FaceDetection
     std::vector<cv::Point2f> FaceDetector::get_face_keypoints()
     {
         return m_keypoints;
-    }    
+    }
+
+    cv::Vec3f FaceDetector::get_head_pose()
+    {
+        return m_head_pose;
+    }
 
     int FaceDetector::detected()
     {

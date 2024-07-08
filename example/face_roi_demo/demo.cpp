@@ -59,10 +59,24 @@ int main(int argc, char *argv[])
         /* Get the face roi rectangle */
         cv::Rect face_roi = det.get_face_roi();
 
-        std::vector<cv::Point2f> keypoints = det.get_face_keypoints();
+        /* Get the head pose */
+        cv::Vec3f head_pose = det.get_head_pose();
+
+        /* Convert the head pose to a string */
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(2)
+            << "Roll: " << head_pose[0] * 180.0 / CV_PI << "°, "
+            << "Pitch: " << head_pose[1] * 180.0 / CV_PI << "°, "
+            << "Yaw: " << head_pose[2] * 180.0 / CV_PI << "°";
+        const std::string m_head_pose_string = oss.str();
+
+        /* Draw the head pose string on the captured camera frame */
+        cv::putText(cam_frame, m_head_pose_string, cv::Point(20,90), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(255, 0, 255), 2);
 
         /* Draw the face roi rectangle on the captured camera frame */
         cv::rectangle(cam_frame, face_roi, cv::Scalar(0, 255, 0), 2); // Green rectangle will be drawn around detected face
+
+        det.draw_keypoints(cam_frame);
         
         /* Update the window with the newly made image */
         cv::imshow("Display window", cam_frame);
