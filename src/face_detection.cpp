@@ -159,13 +159,20 @@ namespace CLFML::FaceDetection
     cv::Mat FaceDetector::preprocess_image(const cv::Mat &in)
     {
         cv::Mat preprocessed_frame = convert_image_to_rgb(in);
-
         cv::Size input_frame_size = cv::Size(m_input_frame_size_x, m_input_frame_size_y);
         cv::resize(preprocessed_frame, preprocessed_frame, input_frame_size);
-
+#ifdef FACE_DETECTOR_ENABLE_CORAL_SUPPORT
+        if (m_delegate_type == face_detector_delegate::CPU)
+        {
+            const double alpha = 1 / 127.5f;
+            const double beta = -127.5f / 127.5f;
+            preprocessed_frame.convertTo(preprocessed_frame, CV_32FC3, alpha, beta);
+        }
+#else
         const double alpha = 1 / 127.5f;
         const double beta = -127.5f / 127.5f;
         preprocessed_frame.convertTo(preprocessed_frame, CV_32FC3, alpha, beta);
+#endif
         return preprocessed_frame;
     }
 
@@ -257,8 +264,21 @@ namespace CLFML::FaceDetection
         generate_anchor_grid();
     }
 
-    void FaceDetector::load_model(const std::string model_path, const uint8_t num_of_threads)
+    void FaceDetector::load_model(const std::string model_path, const face_detector_delegate delegate_type, const uint8_t num_of_threads)
     {
+        m_delegate_type = delegate_type;
+#ifdef FACE_DETECTOR_ENABLE_CORAL_SUPPORT
+        if (delegate_type == face_detector_delegate::CORAL_TPU)
+        {
+            m_edgetpu_context = edgetpu::EdgeTpuManager::GetSingleton()->OpenDevice();
+            if (!m_edgetpu_context)
+            {
+                fprintf(stderr, "No coral found!\n");
+                exit(1);
+            }
+        }
+#endif
+
         /* Load the model in to memory */
         m_model = tflite::FlatBufferModel::BuildFromFile(model_path.c_str());
         if (m_model == nullptr)
@@ -273,6 +293,18 @@ namespace CLFML::FaceDetection
          */
         tflite::ops::builtin::BuiltinOpResolver resolver;
 
+#ifdef FACE_DETECTOR_ENABLE_CORAL_SUPPORT
+        if (delegate_type == face_detector_delegate::CORAL_TPU)
+        {
+            /*
+             * The custom tuned model for tpu usage uses custom tpu operations!
+             * This line of code links this custom command to our coral edge tpu,
+             * as our resolver/interpreter does not know how to handle this custom operation by default
+             */
+            resolver.AddCustom(edgetpu::kCustomOp, edgetpu::RegisterCustomOp());
+        }
+#endif
+
         /*
          * Build the model interpreter with our model and the resolver;
          * This gives a handle and saves it into m_model_intepreter which is later used for doing inference
@@ -283,11 +315,34 @@ namespace CLFML::FaceDetection
             exit(1);
         }
 
+#ifdef FACE_DETECTOR_ENABLE_CORAL_SUPPORT
+        if (delegate_type == face_detector_delegate::CORAL_TPU)
+        {
+            /*
+             * We give our model interpreter a handle to the edgetpu context,
+             * so that the interpreter can now communicate with our edgetpu!
+             */
+            m_model_interpreter->SetExternalContext(kTfLiteEdgeTpuContext, m_edgetpu_context.get());
+        }
+        else
+        {
+            /*
+             * We can set the amount of CPU threads we want to dedicate to our model_interpreter engine.
+             * This is only useful for CPU inference,
+             * Using multiple threads with TPU inference will slow down the program, due to synchronisation between threads!
+             * Default = 4 threads
+             */
+            m_model_interpreter->SetNumThreads(num_of_threads);
+        }
+#else
         /*
          * We can set the amount of CPU threads we want to dedicate to our model_interpreter engine.
+         * This is only useful for CPU inference,
+         * Using multiple threads with TPU inference will slow down the program, due to synchronisation between threads!
          * Default = 4 threads
          */
         m_model_interpreter->SetNumThreads(num_of_threads);
+#endif
 
         /* Allocate memory for model inference */
         if (m_model_interpreter->AllocateTensors() != kTfLiteOk)
@@ -339,4 +394,14 @@ namespace CLFML::FaceDetection
         return m_roi_detected;
     }
 
+    FaceDetector::~FaceDetector()
+    {
+        m_model_interpreter.reset();
+#ifdef FACE_DETECTOR_ENABLE_CORAL_SUPPORT
+        if (m_delegate_type == face_detector_delegate::CORAL_TPU)
+        {
+            m_edgetpu_context.reset();
+        }
+#endif
+    }
 }
