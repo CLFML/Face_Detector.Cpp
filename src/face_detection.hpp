@@ -49,6 +49,13 @@ public:
 
 
     /**
+     * @brief Returns approximate keypoints of the detected face. Left eye (from the observer’s point of view), Right eye,
+     * Nose tip, Mouth, Left eye tragion, Right eye tragion.
+     * @return std::vector<cv::Point2f> A vector of 2D points representing the keypoints of the detected face.
+     */
+    std::vector<cv::Point2f> get_face_keypoints();
+
+    /**
      * @brief Determine whether a face was detected
      * @return 0 if face was detected, 1 if no face was detected in input frame
      */
@@ -81,6 +88,9 @@ private:
     /* Intermediary variable which contains a grid-aligned ROI (after model inference) */
     cv::Rect2f m_roi_from_model;
 
+    /* List of 2D keypoints */
+    std::vector<cv::Point2f> m_keypoints;
+
     /*
      * Variables that are used by the getters
      */    
@@ -111,6 +121,13 @@ private:
      * @return ROI from model_box aligned to Anchor-grid
      */
     cv::Rect2f get_roi_from_model_box(int index);
+
+    /**
+     * @brief Helper function that retrieves the keypoints from the model box at the specified index.
+     * @param index The index of the model box.
+     * @return A vector of cv::Point2f representing the keypoints.
+     */
+    std::vector<cv::Point2f> get_keypoints_from_model_box(int index);
 
     /**
      * @brief Helper that Detects and gets the best ROI from the input image, then saves the Anchor-grid aligned ROI to m_roi_from_model

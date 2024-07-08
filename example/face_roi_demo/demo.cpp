@@ -59,6 +59,8 @@ int main(int argc, char *argv[])
         /* Get the face roi rectangle */
         cv::Rect face_roi = det.get_face_roi();
 
+        std::vector<cv::Point2f> keypoints = det.get_face_keypoints();
+
         /* Draw the face roi rectangle on the captured camera frame */
         cv::rectangle(cam_frame, face_roi, cv::Scalar(0, 255, 0), 2); // Green rectangle will be drawn around detected face
         

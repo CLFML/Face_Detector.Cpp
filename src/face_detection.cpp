@@ -6,6 +6,28 @@
 namespace CLFML::FaceDetection
 {
 
+    std::vector<cv::Point2f> FaceDetector::get_keypoints_from_model_box(int index)
+    {
+        cv::Rect2f scaling_anchor = m_anchors[index];
+        cv::Point_<float> center_of_scaling_anchor = (scaling_anchor.tl() + scaling_anchor.br()) / 2;
+
+        const int box_index = index * 16;
+        std::vector<cv::Point2f> keypoints;
+
+        for (int i = 0; i < 6; ++i) {
+            float kp_x = m_model_regressors[box_index + 4 + i*2];
+            float kp_y = m_model_regressors[box_index + 4 + i*2 + 1];
+
+            // Scale keypoints to anchor grid
+            kp_x = kp_x / m_input_frame_size_x * scaling_anchor.width + center_of_scaling_anchor.x;
+            kp_y = kp_y / m_input_frame_size_y * scaling_anchor.height + center_of_scaling_anchor.y;
+
+            keypoints.emplace_back(kp_x, kp_y);
+        }
+
+        return keypoints;
+    }
+
     cv::Rect2f FaceDetector::get_roi_from_model_box(int index)
     {
         /* Get the corresponding scaling anchor from our pregenerated Anchor list*/
@@ -72,6 +94,7 @@ namespace CLFML::FaceDetection
         if (roi_detected == 0)
         {
             m_roi_from_model = get_roi_from_model_box(index_of_best_score);
+            m_keypoints = get_keypoints_from_model_box(index_of_best_score);
         }
 
         return roi_detected;
@@ -333,6 +356,11 @@ namespace CLFML::FaceDetection
     {
         return m_roi;
     }
+
+    std::vector<cv::Point2f> FaceDetector::get_face_keypoints()
+    {
+        return m_keypoints;
+    }    
 
     int FaceDetector::detected()
     {
