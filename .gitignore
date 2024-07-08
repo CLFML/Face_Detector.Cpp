@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+
+# External libraries
+external/
+
+# Build directories
+cmake-build-debug/
+cmake-build-release/
+cmake-build-minsizerel/
+build/
+Build/
+
+# IDE
+.vscode/
