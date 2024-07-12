@@ -1,3 +1,24 @@
+/*
+*  Copyright 2024 (C) Richard Kroesen <RichardKroesen>, Jeroen Veen <ducroq> & Victor Hogeweij <Hoog-V>
+*
+*  Licensed under the Apache License, Version 2.0 (the "License");
+*  you may not use this file except in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*  http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing, software
+*  distributed under the License is distributed on an "AS IS" BASIS,
+*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*  See the License for the specific language governing permissions and
+*  limitations under the License.
+*
+* This file is part of the Face_Detector.Cpp library
+*
+* Author:          Victor Hogeweij <Hoog-V>
+*
+*/
+
 #ifndef FACE_DETECTION_HPP
 #define FACE_DETECTION_HPP
 #include <string>
@@ -7,133 +28,155 @@
 #include "tensorflow/lite/interpreter.h"
 #include <tensorflow/lite/model.h>
 
+#ifdef FACE_DETECTOR_ENABLE_CORAL_SUPPORT
+#include <edgetpu.h>
+#endif
 
-namespace CLFML::FaceDetection {
-
-/* Number of model_outputs (1x Regressors and 1x Classifiers)*/
-inline constexpr size_t NUM_OF_FACE_DETECTOR_OUTPUT_TENSORS = 2;
-
-/* Number of model_output boxes */
-inline constexpr size_t NUM_OF_FACE_DETECTOR_OUTPUT_BOXES = 896;
-
-/* Number of model regressor outputs */
-inline constexpr size_t NUM_OF_FACE_DETECTOR_REGRESSOR_OUTPUTS = NUM_OF_FACE_DETECTOR_OUTPUT_BOXES * 16;
-
-class FaceDetector
+namespace CLFML::FaceDetection
 {
-public:
-    /**
-     * @brief Constructor
-     * @param det_threshold The sensitivity of the face detector implementation (default=0.75)
-     */
-    FaceDetector(const float det_threshold = 0.75f);
 
-    /**
-     * @brief Loads model and initializes the inference runtime
-     * @param model_path Path to the Mediapipe Blazeface face detector model (.tflite) file
-     * @param num_of_threads The number of CPU threads which can be used by the inference runtime
-     */
-    void load_model(const std::string model_path, const uint8_t num_of_threads = 4);
+    /* Number of model_outputs (1x Regressors and 1x Classifiers)*/
+    inline constexpr size_t NUM_OF_FACE_DETECTOR_OUTPUT_TENSORS = 2;
 
-    /**
-     * @brief Loads image into model and does inference
-     * @param frame Any frame which is formatted in CV_8UC3 or CV_8UC4 format
-     */
-    void load_image(cv::Mat &frame);
+    /* Number of model_output boxes */
+    inline constexpr size_t NUM_OF_FACE_DETECTOR_OUTPUT_BOXES = 896;
 
-    /** 
-     * @brief Gets the Region of Interest, formatted as a square area (scaled to input image) where a detected face might be in
-     * @return Rectangular area which contains a detected face
-     */
-    cv::Rect get_face_roi();
+    /* Number of model regressor outputs */
+    inline constexpr size_t NUM_OF_FACE_DETECTOR_REGRESSOR_OUTPUTS = NUM_OF_FACE_DETECTOR_OUTPUT_BOXES * 16;
 
+    enum class face_detector_delegate
+    {
+        CPU,
+#ifdef FACE_DETECTOR_ENABLE_CORAL_SUPPORT
+        CORAL_TPU
+#endif
+    };
 
-    /**
-     * @brief Determine whether a face was detected
-     * @return 0 if face was detected, 1 if no face was detected in input frame
-     */
-    int detected();
+    class FaceDetector
+    {
+    public:
+        /**
+         * @brief Constructor
+         * @param det_threshold The sensitivity of the face detector implementation (default=0.75)
+         */
+        FaceDetector(const float det_threshold = 0.75f);
 
-private:
-    /* Detection threshold for model results postprocessing */
-    const float m_det_threshold;
+        /**
+         * @brief Loads model and initializes the inference runtime
+         * @param model_path Path to the Mediapipe Blazeface face detector model (.tflite) file
+         * @param delegate_type The delegate to use for inference (CPU or TPU)
+         * @param num_of_threads The number of CPU threads which can be used by the inference runtime
+         */
+        void load_model(const std::string model_path, const face_detector_delegate delegate_type = face_detector_delegate::CPU, const uint8_t num_of_threads = 4);
 
-    /* Model input frame width and height */
-    int32_t m_input_frame_size_x = 128;
+        /**
+         * @brief Loads image into model and does inference
+         * @param frame Any frame which is formatted in CV_8UC3 or CV_8UC4 format
+         */
+        void load_image(cv::Mat &frame);
 
-    int32_t m_input_frame_size_y = 128;
+        /**
+         * @brief Gets the Region of Interest, formatted as a square area (scaled to input image) where a detected face might be in
+         * @return Rectangular area which contains a detected face
+         */
+        cv::Rect get_face_roi();
 
-    /* Array that contains our generated anchor grid (see generate_anchor_grid!) */
-    std::array<cv::Rect2f, NUM_OF_FACE_DETECTOR_OUTPUT_BOXES> m_anchors;
-    
-    /*
-    * Model inputs and outputs
-    */
-    TfLiteTensor* m_input_tensor;
+        /**
+         * @brief Determine whether a face was detected
+         * @return 0 if face was detected, 1 if no face was detected in input frame
+         */
+        int detected();
 
-    std::array<TfLiteTensor *, NUM_OF_FACE_DETECTOR_OUTPUT_TENSORS> m_output_tensors;
-    
-    std::array<float, NUM_OF_FACE_DETECTOR_OUTPUT_BOXES> m_model_classifiers;
+        ~FaceDetector();
 
-    std::array<float, NUM_OF_FACE_DETECTOR_REGRESSOR_OUTPUTS> m_model_regressors;
-    
+    private:
+        /* Detection threshold for model results postprocessing */
+        const float m_det_threshold;
 
-    /* Intermediary variable which contains a grid-aligned ROI (after model inference) */
-    cv::Rect2f m_roi_from_model;
+        /* Model input frame width and height */
+        int32_t m_input_frame_size_x = 128;
 
-    /*
-     * Variables that are used by the getters
-     */    
-    cv::Rect m_roi;
+        int32_t m_input_frame_size_y = 128;
 
-    int m_roi_detected = -1;
+        /* Array that contains our generated anchor grid (see generate_anchor_grid!) */
+        std::array<cv::Rect2f, NUM_OF_FACE_DETECTOR_OUTPUT_BOXES> m_anchors;
 
-    /*
-     * Handles to the model and model_inpreter runtime
-     */
-    std::unique_ptr<tflite::FlatBufferModel> m_model;
+        /*
+         * Model inputs and outputs
+         */
+        TfLiteTensor *m_input_tensor;
 
-    std::unique_ptr<tflite::Interpreter> m_model_interpreter;
+        std::array<TfLiteTensor *, NUM_OF_FACE_DETECTOR_OUTPUT_TENSORS> m_output_tensors;
 
-    /**
-     * @brief Helper that generates the anchor grid (runs at class construction)
-     */
-    void generate_anchor_grid();
+        std::array<float, NUM_OF_FACE_DETECTOR_OUTPUT_BOXES> m_model_classifiers;
 
-    /**
-     * @brief Helper that preprocesses the input image for inference
-     * @return Preprocessed image
-     */
-    cv::Mat preprocess_image(const cv::Mat& in);
+        std::array<float, NUM_OF_FACE_DETECTOR_REGRESSOR_OUTPUTS> m_model_regressors;
 
-    /**
-     * @brief Helper function that calculates the Anchor-grid aligned ROI from model-regressor box
-     * @return ROI from model_box aligned to Anchor-grid
-     */
-    cv::Rect2f get_roi_from_model_box(int index);
+        /* Intermediary variable which contains a grid-aligned ROI (after model inference) */
+        cv::Rect2f m_roi_from_model;
 
-    /**
-     * @brief Helper that Detects and gets the best ROI from the input image, then saves the Anchor-grid aligned ROI to m_roi_from_model
-     * @return roi was detected = 0, no roi detected = 1
-     */
-    int get_best_roi_from_model_result();
+        /*
+         * Variables that are used by the getters
+         */
+        cv::Rect m_roi;
 
-    /**
-     * @brief Helper that Aligns the Anchor grid to the image and calculates the corresponding ROI coordinates
-     * @return Rectangle with the calculated ROI
-     */
-    cv::Rect scale_roi_to_image(cv::Mat &image);
+        int m_roi_detected = -1;
 
-    /**
-     * @brief Helper that Gets the regressor model outputs and saves them into the m_model_classifiers array
-     */
-    void get_regressor();
+        /*
+         * Handles to the model and model_inpreter runtime
+         */
+        std::unique_ptr<tflite::FlatBufferModel> m_model;
 
-    /**
-     * @brief Gets the classifier model outputs and saves them into the m_model_classifiers array
-     */
-    void get_classifier();
-};
+        std::unique_ptr<tflite::Interpreter> m_model_interpreter;
+
+#ifdef FACE_DETECTOR_ENABLE_CORAL_SUPPORT
+        /*
+         * Holds the context of the edgetpu manager; Google thingy that manages all connected edgetpu's
+         */
+        std::shared_ptr<edgetpu::EdgeTpuContext> m_edgetpu_context;
+#endif /* FACE_DETECTOR_ENABLE_CORAL_SUPPORT */
+
+        face_detector_delegate m_delegate_type;
+
+        /**
+         * @brief Helper that generates the anchor grid (runs at class construction)
+         */
+        void generate_anchor_grid();
+
+        /**
+         * @brief Helper that preprocesses the input image for inference
+         * @return Preprocessed image
+         */
+        cv::Mat preprocess_image(const cv::Mat &in);
+
+        /**
+         * @brief Helper function that calculates the Anchor-grid aligned ROI from model-regressor box
+         * @return ROI from model_box aligned to Anchor-grid
+         */
+        cv::Rect2f get_roi_from_model_box(int index);
+
+        /**
+         * @brief Helper that Detects and gets the best ROI from the input image, then saves the Anchor-grid aligned ROI to m_roi_from_model
+         * @return roi was detected = 0, no roi detected = 1
+         */
+        int get_best_roi_from_model_result();
+
+        /**
+         * @brief Helper that Aligns the Anchor grid to the image and calculates the corresponding ROI coordinates
+         * @return Rectangle with the calculated ROI
+         */
+        cv::Rect scale_roi_to_image(cv::Mat &image);
+
+        /**
+         * @brief Helper that Gets the regressor model outputs and saves them into the m_model_classifiers array
+         */
+        void get_regressor();
+
+        /**
+         * @brief Gets the classifier model outputs and saves them into the m_model_classifiers array
+         */
+        void get_classifier();
+    };
 
 }
 
