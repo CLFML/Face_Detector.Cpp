@@ -5,11 +5,13 @@
 #include <opencv2/opencv.hpp>
 #include <thread>
 
-#ifdef FACE_DETECTOR_ENABLE_CORAL_SUPPORT
-#define MODEL_PATH FACE_DETECTOR_MODEL_DIR "/Coral/face_detection.tflite"
-#else
-#define MODEL_PATH FACE_DETECTOR_MODEL_DIR "/CPU/face_detection.tflite"
-#endif
+
+/* Uncomment this when using a Coral TPU, this is the special quantized model for TPU usage! */
+//#define MODEL_PATH_TPU FACE_DETECTOR_MODEL_DIR "/Coral/face_detection.tflite"
+
+/* Leave this uncommented when using CPU inference, this is uncommented by default */
+#define MODEL_PATH_CPU FACE_DETECTOR_MODEL_DIR "/CPU/face_detection.tflite"
+
 
 int main(int argc, char *argv[])
 {
@@ -33,12 +35,14 @@ int main(int argc, char *argv[])
     /* Initialize face detector library */
     CLFML::FaceDetection::FaceDetector det;
 
-#ifdef FACE_DETECTOR_ENABLE_CORAL_SUPPORT
+
+    /* UNCOMMENT this line when using a TPU*/
     /* Load model and initialize inference runtime with Coral TPU delegate */
-    det.load_model(MODEL_PATH, CLFML::FaceDetection::face_detector_delegate::CORAL_TPU);
-#else
+    //det.load_model(MODEL_PATH_TPU, CLFML::FaceDetection::face_detector_delegate::CORAL_TPU);
+    
+    /* COMMENT this line when using a TPU, when using CPU leave it uncommented! As this will prepare the library for CPU inference! */
     det.load_model(MODEL_PATH);
-#endif
+
 
     /* Create window to show the face roi */
     cv::namedWindow("Display window", cv::WINDOW_NORMAL);
