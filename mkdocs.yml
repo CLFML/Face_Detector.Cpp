@@ -47,7 +47,14 @@ theme:
 markdown_extensions:
   - attr_list
   - md_in_html
-
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
 
 nav:
   - index.md
+  - Getting Started:
+    - Build Environment:
+      - usage/usage_with_windows.md
+      - usage/usage_with_mac.md
+      - usage/usage_with_linux.md
