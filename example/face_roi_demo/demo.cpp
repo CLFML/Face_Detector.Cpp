@@ -26,11 +26,6 @@
 #include <thread>
 
 
-/* Uncomment this when using a Coral TPU, this is the special quantized model for TPU usage! */
-//#define MODEL_PATH_TPU FACE_DETECTOR_MODEL_DIR "/Coral/face_detection.tflite"
-
-
-
 int main(int argc, char *argv[])
 {
     /* Initialize camera */
