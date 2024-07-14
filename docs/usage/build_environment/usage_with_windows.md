@@ -36,7 +36,7 @@ There are multiple ways you can download and install VS BuildTools 2019;
 ### Manually installing VS Build Tools 2019
 1. [Download and run this installer](https://aka.ms/vs/16/release/vs_buildtools.exe).
 2. Select these options:
-![Visual Studio Build Tools Options](vs_build_tools_options.png)
+![Visual Studio Build Tools Options](img/vs_build_tools_options.png)
 3. After installation, reboot your machine!
 
 
@@ -89,15 +89,15 @@ git clone https://github.com/CLFML/Face_Detector.Cpp.git
 
 3. Select Ninja as build generator by pressing **CRTL+SHIFT+P**->**"CMake: Open CMake Tools Extension Settings"**->**"@ext:ms-vscode.cmake-tools generator"**
    Now type Ninja (with capital N into the generator field!).
-   ![CMake extension tool settings; Generator](image.png)
+   ![CMake extension tool settings; Generator](img/vscode_cmake_generator.png)
 
 4. Select the `MSVC x86_amd64 kit`by pressing CTRL+SHIFT+p and selecting `CMake: Select a kit`.
 
 5. CMake will now configure; By default it will configure as Debug build, this has a significant performance hit.
    To change to release with debug info (which has optimizations turned on, but is still debuggable). Press CTRL+SHIFT+p again and enter `CMake: Select Variant`-> `RelWithDebInfo`
-   ![Variant](image-1.png)
+   ![Variant](img/build_variant.png)
 
 6. Let CMake Finish configuring your build configuration. **Then click on the Play button on the blue bar on the bottom of screen**, CMake might ask which target to launch, select the `Face_roi_demo` target.
-   ![Launch target](image-4.png)
+   ![Launch target](img/launch_target.png)
 
 7. After build is finished, it will launch the demo which uses your camera to detect your face.

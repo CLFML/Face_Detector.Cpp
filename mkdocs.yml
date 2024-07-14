@@ -56,8 +56,8 @@ nav:
   - Getting Started:
     - usage/overview.md
     - Build Environment:
-      - usage/usage_with_windows.md
-      - usage/usage_with_mac.md
-      - usage/usage_with_linux.md
+      - usage/build_environment/usage_with_windows.md
+      - usage/build_environment/usage_with_mac.md
+      - usage/build_environment/usage_with_linux.md
     - Running the examples:
       - usage/face_roi_demo.md
