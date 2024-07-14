@@ -29,8 +29,6 @@
 /* Uncomment this when using a Coral TPU, this is the special quantized model for TPU usage! */
 //#define MODEL_PATH_TPU FACE_DETECTOR_MODEL_DIR "/Coral/face_detection.tflite"
 
-/* Leave this uncommented when using CPU inference, this is uncommented by default */
-#define MODEL_PATH_CPU FACE_DETECTOR_MODEL_DIR "/CPU/face_detection.tflite"
 
 
 int main(int argc, char *argv[])
@@ -58,10 +56,10 @@ int main(int argc, char *argv[])
 
     /* UNCOMMENT this line when using a TPU*/
     /* Load model and initialize inference runtime with Coral TPU delegate */
-    //det.load_model(MODEL_PATH_TPU, CLFML::FaceDetection::face_detector_delegate::CORAL_TPU);
+    //det.load_model(CFML_FACE_DETECTOR_CORAL_MODEL_PATH, CLFML::FaceDetection::face_detector_delegate::CORAL_TPU);
     
     /* COMMENT this line when using a TPU, when using CPU leave it uncommented! As this will prepare the library for CPU inference! */
-    det.load_model(MODEL_PATH_CPU);
+    det.load_model(CFML_FACE_DETECTOR_CPU_MODEL_PATH);
 
 
     /* Create window to show the face roi */
