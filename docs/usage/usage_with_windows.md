@@ -87,10 +87,17 @@ git clone https://github.com/CLFML/Face_Detector.Cpp.git
 
 2. Open the cloned repo folder in vscode; `File->Open Folder`
 
-3. Select the `MSVC x86_amd64 kit`by pressing CTRL+SHIFT+p and selecting `CMake: Select a kit`.
+3. Select Ninja as build generator by pressing **CRTL+SHIFT+P**->**"CMake: Open CMake Tools Extension Settings"**->**"@ext:ms-vscode.cmake-tools generator"**
+   Now type Ninja (with capital N into the generator field!).
+   ![CMake extension tool settings; Generator](image.png)
 
-4. CMake will now configure; By default it will configure as Debug build, this has a significant performance hit.
+4. Select the `MSVC x86_amd64 kit`by pressing CTRL+SHIFT+p and selecting `CMake: Select a kit`.
+
+5. CMake will now configure; By default it will configure as Debug build, this has a significant performance hit.
    To change to release with debug info (which has optimizations turned on, but is still debuggable). Press CTRL+SHIFT+p again and enter `CMake: Select Variant`-> `RelWithDebInfo`
-5. Let CMake Finish configuring your build configuration. **Then click on the Play button on the blue bar on the bottom of screen**, CMake might ask which target to launch, select the `Face_roi_demo` target.
+   ![Variant](image-1.png)
 
-6. After build is finished, it will launch the demo which uses your camera to detect your face.
+6. Let CMake Finish configuring your build configuration. **Then click on the Play button on the blue bar on the bottom of screen**, CMake might ask which target to launch, select the `Face_roi_demo` target.
+   ![Launch target](image-4.png)
+
+7. After build is finished, it will launch the demo which uses your camera to detect your face.
