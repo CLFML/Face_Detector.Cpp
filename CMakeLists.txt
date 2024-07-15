@@ -5,9 +5,9 @@ project(face_detector VERSION 3.11.3 LANGUAGES CXX)
 set(MAIN_PROJECT OFF)
 
 # Optionally build the example
-option(BUILD_EXAMPLE_PROJECTS "Build example projects" ON)
+option(CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS "Build example projects" ON)
 # Optionally enable edge tpu support (Requires libedgetpu library to be installed!)
-option(FACE_DETECTOR_ENABLE_CORAL_TPU "Enable CORAL EDGE_TPU support" OFF)
+option(CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU "Enable CORAL EDGE_TPU support" OFF)
 
 
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -45,7 +45,7 @@ else()
 endif()
 
 
-if(FACE_DETECTOR_ENABLE_CORAL_TPU)
+if(CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU)
 target_link_libraries(${PROJECT_NAME} edgetpu)
 set(FACE_DETECTOR_CORAL_MODEL_PATH ${CMAKE_CURRENT_LIST_DIR}/models/Coral/face_detection.tflite)
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DFACE_DETECTOR_ENABLE_CORAL_SUPPORT=1 
@@ -63,10 +63,10 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC -DCFML_FACE_DETECTOR_MODEL_DIR
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
-if(BUILD_EXAMPLE_PROJECTS)
+if(CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS)
   add_executable(face_roi_demo ${CMAKE_CURRENT_LIST_DIR}/example/face_roi_demo/demo.cpp)
   target_link_libraries(face_roi_demo PUBLIC face_detector)
 endif()
 
 
-unset(BUILD_EXAMPLE_PROJECTS CACHE)
+unset(CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS CACHE)

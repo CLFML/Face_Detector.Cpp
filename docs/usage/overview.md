@@ -59,3 +59,87 @@ The comments above the functions describe fairly well what each function does. H
     Number of threads indicate how many CPU threads to use for the inference delegate. 
     
     **Please note that this can only be used with the CPU delegate!**. When using the TPU delegate, this parameter will be ignored. As adding threads with TPU adds aditional latency as the threads have to wait for synchronisation everytime one thread offloads it's task to the same TPU.
+
+## CMake integration
+This project uses CMake for generating the build files. The CMakeLists is configured as follows:
+
+### Target(s)
+The main target defined in the CMakeLists is the `face_detector` target. **As this will not be the only library released under the CLFML organisation, we chose to namespace it and call it `CLFML::face_detector`**. 
+
+Other targets which are defined in the CMake files of this project are the Unit tests.
+
+!!! Note "Unit Tests are not built by default!"
+    Unit tests are not built by default! To build the unit-tests, pass in the `-DCLFML_FACE_DETECTOR_BUILD_UNIT_TESTS` argument to the CMake generator.
+
+    e.g. `cmake -B build -DCLFML_FACE_DETECTOR_BUILD_UNIT_TESTS`
+
+
+### Configuration options
+
+Some of the configuration options which can be used to generate the CMake project are:
+
+- `CLFML_FACE_DETECTOR_BUILD_UNIT_TESTS`; Build Unit tests (Default=OFF)
+
+- `CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS`; Build example projects (Face roi demo) (Default=ON, *only when project is not part of other project)
+
+- `CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU`; Enables Coral TPU support (Default=OFF)
+
+### Integrating it into your own project
+Here are some CMake snippets which indicate how this project might be included into your own CMake project.
+
+!!! example "Automatically fetching from GitHub"
+    CPU only:
+    ```cmake
+    include(FetchContent)
+
+    FetchContent_Declare(
+     Face_Detector.Cpp
+     GIT_REPOSITORY https://github.com/CLFML/Face_Detector.Cpp.git
+     GIT_TAG        main
+    )
+    FetchContent_MakeAvailable(Face_Detector.Cpp)
+
+    ...
+
+    target_link_libraries(YOUR_MAIN_EXECUTABLE_NAME CLFML::face_detector)
+    ```
+
+    TPU and CPU (requires version matched libedgetpu to be installed on your system *):
+    ```cmake
+    include(FetchContent)
+    set(CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU ON CACHE INTERNAL "")  # Makes sure that the lib will build with TPU support
+
+    FetchContent_Declare(
+     Face_Detector.Cpp
+     GIT_REPOSITORY https://github.com/CLFML/Face_Detector.Cpp.git
+     GIT_TAG        main
+    )
+    FetchContent_MakeAvailable(Face_Detector.Cpp)
+
+    ...
+
+    target_link_libraries(YOUR_MAIN_EXECUTABLE_NAME CLFML::face_detector)
+    ```
+    
+    *Version matched with the tensorflow used by this lib (currenly 1.16.1)
+
+!!! example "Manually using add_subdirectory"
+    First make sure that this library is cloned into the project directory!
+        CPU only:
+    ```cmake
+    add_subdirectory(Face_Detector.Cpp)
+    ...
+
+    target_link_libraries(YOUR_MAIN_EXECUTABLE_NAME CLFML::face_detector)
+    ```
+
+    TPU and CPU (requires version matched libedgetpu to be installed on your system *):
+    ```cmake
+    set(CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU ON CACHE INTERNAL "")  # Makes sure that the lib will build with TPU support
+    add_subdirectory(Face_Detector.Cpp)
+    ...
+
+    target_link_libraries(YOUR_MAIN_EXECUTABLE_NAME CLFML::face_detector)
+    ```
+    
+    *Version matched with the tensorflow used by this lib (currenly 1.16.1)
