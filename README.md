@@ -129,8 +129,10 @@ add_subdirectory(Face_Detector.Cpp)
 target_link_libraries(YOUR_EXECUTABLE CLFML::face_detector)
 ```
 
+## Aditional documentation
+See our wiki!
+
 ## Todo
-- Add documentation
 - Add ROS interface
 - Add language bindings for Python, C# and Java
 - Add support for Conan and precompiled libraries (such as precompiled version of TensorFlow Lite)
