@@ -59,5 +59,15 @@ nav:
       - usage/build_environment/usage_with_windows.md
       - usage/build_environment/usage_with_mac.md
       - usage/build_environment/usage_with_linux.md
+    - Coral TPU:
+      - usage/tpu/overview.md
+      - usage/tpu/using_a_tpu_on_x86_64_linux.md
+      - usage/tpu/using_a_tpu_on_arm64_linux.md
+      - usage/tpu/using_a_tpu_on_x86_64_windows.md
     - Running the examples:
       - usage/face_roi_demo.md
+  - Implementation:
+    - about/implementation.md
+  - Contributing:
+    - contributing/rules.md
+    - contributing/license.md
