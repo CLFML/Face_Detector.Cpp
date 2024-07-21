@@ -88,6 +88,14 @@ int main(int argc, char *argv[])
         /* Draw the face roi rectangle on the captured camera frame */
         cv::rectangle(cam_frame, face_roi, cv::Scalar(0, 255, 0), 2); // Green rectangle will be drawn around detected face
 
+        /* Get the face landmarks */
+        std::array<cv::Point, 6> face_keypoints = det.get_face_landmarks();
+
+        /* Draw the face landmarks on top of the captured camera frame */
+        for(cv::Point keypoint : face_keypoints) {
+            cv::circle(cam_frame, keypoint, 2, cv::Scalar(0, 255, 0), -1);
+        }
+
         /* Update the window with the newly made image */
         cv::imshow("Display window", cam_frame);
 

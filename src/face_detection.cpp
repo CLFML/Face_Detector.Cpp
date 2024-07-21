@@ -21,8 +21,11 @@
 
 #include "face_detection.hpp"
 
+#include <cmath>
+
 #include "tensorflow/lite/kernels/register.h"
 #include "opencv2/imgproc.hpp"
+
 
 namespace CLFML::FaceDetection
 {
@@ -46,6 +49,14 @@ namespace CLFML::FaceDetection
         float box_width = m_model_regressors[box_index + 2];
         float box_height = m_model_regressors[box_index + 3];
 
+        /*
+         * This scales the 12 2D face keypoints/landmarks to our grid of anchors. So that these can be scaled to our input image later!
+         */
+        int model_reg_index = box_index + 4;
+        for(cv::Point2f &point: m_model_landmarks) {
+            point.x = m_model_regressors.at(model_reg_index++) / m_input_frame_size_x * scaling_anchor.width + center_of_scaling_anchor.x;
+            point.y = m_model_regressors.at(model_reg_index++) / m_input_frame_size_y * scaling_anchor.height + center_of_scaling_anchor.y;
+        }
         /*
          *  The model boxes output are scaled to the 128x128 image, to make scaling to our input frame (of higher resolution easier)
          *  We need to align the model box to our grid of anchors!
@@ -116,6 +127,19 @@ namespace CLFML::FaceDetection
         const int top_left_y = (int)box_center.y - box_height / 2;
 
         return cv::Rect(top_left_x, top_left_y, (int)box_width, (int)box_height);
+    }
+
+    void FaceDetector::scale_landmarks_to_image(cv::Mat &image)
+    {
+        int image_width = image.size().width;
+        int image_height = image.size().height;
+        for(int i =0; i < m_model_landmarks_scaled.size(); i++) {
+            const float x_coord_unscaled = m_model_landmarks.at(i).x;
+            const float y_coord_unscaled = m_model_landmarks.at(i).y;
+            int x_coord_scaled = std::round(x_coord_unscaled*image_width);
+            int y_coord_scaled = std::round(y_coord_unscaled*image_height);
+            m_model_landmarks_scaled.at(i) = cv::Point(x_coord_scaled, y_coord_scaled);
+        }
     }
 
     enum output_tensor_id
@@ -221,10 +245,13 @@ namespace CLFML::FaceDetection
         if (m_roi_detected != -1)
         {
             m_roi = scale_roi_to_image(camera_frame);
+            scale_landmarks_to_image(camera_frame);
         }
         else
         {
             m_roi = cv::Rect();
+            /* We need to `empty` our array, otherwise previous detected keypoints will be shown */
+            m_model_landmarks_scaled.fill(cv::Point(0,0));
         }
     }
 
@@ -408,6 +435,11 @@ namespace CLFML::FaceDetection
     cv::Rect FaceDetector::get_face_roi()
     {
         return m_roi;
+    }
+
+    std::array<cv::Point, 6> FaceDetector::get_face_landmarks() 
+    {
+        return m_model_landmarks_scaled;
     }
 
     int FaceDetector::detected()
