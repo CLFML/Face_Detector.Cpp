@@ -35,6 +35,18 @@ void load_image(cv::Mat &frame);
 cv::Rect get_face_roi();
 
 /**
+ * @brief Gets the 2D landmarks from the face.
+ * @return Array with 6 Facial landmarks;
+ *         Index 0: Left Eye
+ *         Index 1: Right Eye
+ *         Index 2: Nose
+ *         Index 3: Mouth
+ *         Index 4: Left ear
+ *         Index 5: Right ear
+*/
+std::array<cv::Point, NUM_OF_FACE_DETECTOR_LANDMARKS> get_face_landmarks();
+
+/**
  * @brief Determine whether a face was detected
  * @return 0 if face was detected, 1 if no face was detected in input frame
 */
@@ -53,12 +65,15 @@ The comments above the functions describe fairly well what each function does. H
 
     `CFML_FACE_DETECTOR_TPU_MODEL_PATH`: Points to "models/TPU/face_detection.tflite"
 
-    `CFML_FACE_DETECTOR_MODEL_DIR`: Points to "models/" folder
+    `CFML_FACE_DETECTOR_MODEL_DIR`: Points to "models/" folder of this library
 
 !!! Note "Number of threads"
     Number of threads indicate how many CPU threads to use for the inference delegate. 
     
     **Please note that this can only be used with the CPU delegate!**. When using the TPU delegate, this parameter will be ignored. As adding threads with TPU adds aditional latency as the threads have to wait for synchronisation everytime one thread offloads it's task to the same TPU.
+
+!!! Note "Alignment of Face ROI"
+    Please note that the Face ROI is top-left aligned. 
 
 ## CMake integration
 This project uses CMake for generating the build files. The CMakeLists is configured as follows:
