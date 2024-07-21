@@ -44,6 +44,9 @@ namespace CLFML::FaceDetection
     /* Number of model regressor outputs */
     inline constexpr size_t NUM_OF_FACE_DETECTOR_REGRESSOR_OUTPUTS = NUM_OF_FACE_DETECTOR_OUTPUT_BOXES * 16;
 
+    /* Number of model landmarks */
+    inline constexpr size_t NUM_OF_FACE_DETECTOR_LANDMARKS = 6;
+
     enum class face_detector_delegate
     {
         CPU,
@@ -77,9 +80,21 @@ namespace CLFML::FaceDetection
 
         /**
          * @brief Gets the Region of Interest, formatted as a square area (scaled to input image) where a detected face might be in
-         * @return Rectangular area which contains a detected face
+         * @return Rectangular area which contains a detected face (Top-Left aligned)
          */
         cv::Rect get_face_roi();
+
+        /**
+         * @brief Gets the 2D landmarks from the face.
+         * @return Array with 6 Facial landmarks;
+         *         Index 0: Left Eye
+         *         Index 1: Right Eye
+         *         Index 2: Nose
+         *         Index 3: Mouth
+         *         Index 4: Left ear
+         *         Index 5: Right ear
+         */
+        std::array<cv::Point, NUM_OF_FACE_DETECTOR_LANDMARKS> get_face_landmarks();
 
         /**
          * @brief Determine whether a face was detected
@@ -115,11 +130,14 @@ namespace CLFML::FaceDetection
         /* Intermediary variable which contains a grid-aligned ROI (after model inference) */
         cv::Rect2f m_roi_from_model;
 
+        /* Intermediary variable which contains grid-aligned Landmarks (after model inference) */
+        std::array<cv::Point2f, NUM_OF_FACE_DETECTOR_LANDMARKS> m_model_landmarks;
+
         /*
          * Variables that are used by the getters
          */
         cv::Rect m_roi;
-
+        std::array<cv::Point, NUM_OF_FACE_DETECTOR_LANDMARKS> m_model_landmarks_scaled;
         int m_roi_detected = -1;
 
         /*
@@ -166,6 +184,12 @@ namespace CLFML::FaceDetection
          * @return Rectangle with the calculated ROI
          */
         cv::Rect scale_roi_to_image(cv::Mat &image);
+
+        /**
+         * @brief Helper that Aligns the Anchor grid to the image and calculates the corresponding landmark coordinates
+         *        (saves them into m_model_landmarks_scaled array!)
+         */
+        void scale_landmarks_to_image(cv::Mat &image);
 
         /**
          * @brief Helper that Gets the regressor model outputs and saves them into the m_model_classifiers array
