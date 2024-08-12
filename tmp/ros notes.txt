@@ -1,0 +1,48 @@
+Make sure you have installed and configured ROS2 jazzy
+https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Configuring-ROS2-Environment.html
+
+
+
+Make sure ros cv bridge is installed
+
+sudo apt install ros-jazzy-cv-bridge
+
+we need to start ros, before vscode,
+so move to the project folder, then
+source /opt/ros/jazzy/setup.bash
+and then 
+code .
+
+
+build the package (see https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html):
+colcon build --symlink-install --packages-select face_detector
+
+
+Run the demo
+
+Before you can use any of the installed executables or libraries, you will need to add them to your path and library paths. colcon will have generated bash/bat files in the install directory to help set up the environment. These files will add all of the required elements to your path and library paths as well as provide any bash or shell commands exported by packages.
+
+source install/setup.bash
+
+With the environment sourced, we can run executables built by colcon. Let’s run a subscriber node from the examples:
+
+ros2 run examples_rclcpp_minimal_subscriber subscriber_member_function
+
+In another terminal, let’s run a publisher node (don’t forget to source the setup script):
+
+ros2 run examples_rclcpp_minimal_publisher publisher_member_function
+
+You should see messages from the publisher and subscriber with numbers incrementing.
+
+
+
+
+errors??
+
+ament stamp has root priviliges and cannot be changed,  
+ls -l /opt/ros/jazzy/share/ament_cmake_core/cmake/core/stamp.cmake
+so
+sudo chown jeroen:jeroen /opt/ros/jazzy/share/ament_cmake_core/cmake/core/stamp.cmake 
+
+
+https://picknik.ai/vscode/docker/ros2/2024/01/23/ROS2-and-VSCode.html
