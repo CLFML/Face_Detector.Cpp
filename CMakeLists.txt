@@ -37,6 +37,7 @@ if (ROS2_PACKAGE_BUILD)
     # set(ament_cmake_DIR "/opt/ros/jazzy/share/ament_cmake/cmake")
     # set(cv_bridge_DIR "/opt/ros/jazzy/share/cv_bridge/cmake")
     # include_directories(/opt/ros/jazzy/include)
+    # set(pthreadpool_DIR "/usr/lib/cmake/pthreadpool")
     find_package(ament_cmake REQUIRED)
     find_package(rclcpp REQUIRED)
     find_package(sensor_msgs REQUIRED)
@@ -44,6 +45,8 @@ if (ROS2_PACKAGE_BUILD)
     find_package(std_msgs REQUIRED)
     find_package(geometry_msgs REQUIRED)
     find_package(std_srvs REQUIRED)
+    # find_package(Threads REQUIRED)
+    # find_package(pthreadpool REQUIRED)    
     # include_directories(
     #     ${OpenCV_INCLUDE_DIRS}
     #     ${cv_bridge_INCLUDE_DIRS}
@@ -83,7 +86,8 @@ if(CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU)
 endif()
 
 if (ROS2_PACKAGE_BUILD)
-    target_link_libraries(${PROJECT_NAME} ${cv_bridge_LIBRARIES}) 
+    # target_link_libraries(${PROJECT_NAME} ${cv_bridge_LIBRARIES} pthreadpool Threads::Threads)    
+    target_link_libraries(${PROJECT_NAME} ${cv_bridge_LIBRARIES})
 endif ()
 
 set(FACE_DETECTOR_CPU_MODEL_PATH ${CMAKE_CURRENT_LIST_DIR}/models/CPU/face_detection.tflite)
