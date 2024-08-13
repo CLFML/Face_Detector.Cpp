@@ -146,31 +146,42 @@ Before using this library you will need the following packages installed:
 git clone https://github.com/CLFML/Face_Detector.Cpp.git
 ```
 
-2. Build the package:
+2. Maske sure to set the ROS2 switch in CMakeLists.txt
+
+```cmake
+option(CLFML_ROS2_PACKAGE_BUILD "Build a ROS2 package" ON)
+```
+
+You may need to explicitly override cache:
+```cmake
+set(CLFML_ROS2_PACKAGE_BUILD ON CACHE BOOL "Build a ROS2 package" FORCE)
+```
+
+3. Build the package:
 
 ```bash
 colcon build --packages-select face_detector
 ```
 
-3. Set up the environment:
+4. Set up the environment:
 
 ```bash
 source install/setup.bash
 ```
 
-4. Run the camera node:
+5. Run the camera node:
 
 ```bash
 ros2 run face_detector camera_node
 ```
 
-5. In another terminal, run the face detector node (don’t forget to source the setup script):
+6. In another terminal, run the face detector node (don’t forget to source the setup script):
 
 ```bash
 ros2 run face_detector face_detector_node
 ```
 
-6. In yet another terminal, run the viewer:
+7. In yet another terminal, run the viewer:
 
 ```bash
 ros2 run face_detector face_detector_viewer
@@ -182,7 +193,6 @@ ros2 run face_detector face_detector_viewer
 See our wiki!
 
 ## Todo
-- Add ROS interface
 - Add language bindings for Python, C# and Java
 - Add support for Conan and precompiled libraries (such as precompiled version of TensorFlow Lite)
 - Add support for MakeFiles and Bazel
