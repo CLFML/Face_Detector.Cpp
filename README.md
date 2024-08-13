@@ -10,6 +10,8 @@ Face detector using the [BlazeFace Mediapipe model](https://storage.googleapis.c
 This library offers support for:
 - Face detection
 - Face ROI (Region of interest) detection
+- 2D Landmarks of the Left eye, Right Eye, Nose tip, Mouth, Left eye tragion and Right eye tragion
+
 
 ### Face detection
 This is some example code for face detection:
@@ -128,6 +130,53 @@ add_subdirectory(Face_Detector.Cpp)
 ...
 target_link_libraries(YOUR_EXECUTABLE CLFML::face_detector)
 ```
+
+## Building a ROS2 package with Colcon
+Before using this library you will need the following packages installed:
+- OpenCV
+- ROS2
+- ROS CV bridge
+- Working C++ compiler (GCC, Clang, MSVC (2017 or Higher))
+- CMake
+
+### Running the examples (Ubuntu, CPU)
+
+1. Clone this repo:
+```
+git clone https://github.com/CLFML/Face_Detector.Cpp.git
+```
+
+2. Build the package:
+
+```bash
+colcon build --packages-select face_detector
+```
+
+3. Set up the environment:
+
+```bash
+source install/setup.bash
+```
+
+4. Run the camera node:
+
+```bash
+ros2 run face_detector camera_node
+```
+
+5. In another terminal, run the face detector node (don’t forget to source the setup script):
+
+```bash
+ros2 run face_detector face_detector_node
+```
+
+6. In yet another terminal, run the viewer:
+
+```bash
+ros2 run face_detector face_detector_viewer
+```
+
+
 
 ## Aditional documentation
 See our wiki!

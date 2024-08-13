@@ -21,13 +21,12 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/int32.hpp>
 #include "sensor_msgs/msg/region_of_interest.hpp"
-// #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/point_stamped.hpp>
 
-class FaceDetectorSubscriber : public rclcpp::Node
+class FaceDetectorViewer : public rclcpp::Node
 {
 public:
-    FaceDetectorSubscriber() : Node("face_detector_subscriber")
+    FaceDetectorViewer() : Node("face_detector_viewer")
     {
         // Declare parameters for topic names
         this->declare_parameter("face_detected_topic", "/face_detected");
@@ -42,15 +41,15 @@ public:
         // Create subscriptions
         face_detected_sub_ = this->create_subscription<std_msgs::msg::Int32>(
             face_detected_topic, 10, 
-            std::bind(&FaceDetectorSubscriber::faceDetectedCallback, this, std::placeholders::_1));
+            std::bind(&FaceDetectorViewer::faceDetectedCallback, this, std::placeholders::_1));
 
         face_roi_sub_ = this->create_subscription<sensor_msgs::msg::RegionOfInterest>(
             face_roi_topic, 10, 
-            std::bind(&FaceDetectorSubscriber::faceRoiCallback, this, std::placeholders::_1));
+            std::bind(&FaceDetectorViewer::faceRoiCallback, this, std::placeholders::_1));
 
         face_landmarks_sub_ = this->create_subscription<geometry_msgs::msg::PointStamped>(
             face_landmarks_topic, 10, 
-            std::bind(&FaceDetectorSubscriber::faceLandmarksCallback, this, std::placeholders::_1));
+            std::bind(&FaceDetectorViewer::faceLandmarksCallback, this, std::placeholders::_1));
     }
 
 private:
@@ -72,7 +71,6 @@ private:
     }
 
     rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr face_detected_sub_;
-    // rclcpp::Subscription<geometry_msgs::msg::Point>::SharedPtr face_roi_sub_;
     rclcpp::Subscription<sensor_msgs::msg::RegionOfInterest>::SharedPtr face_roi_sub_;
     rclcpp::Subscription<geometry_msgs::msg::PointStamped>::SharedPtr face_landmarks_sub_;
 };
@@ -80,7 +78,7 @@ private:
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<FaceDetectorSubscriber>());
+    rclcpp::spin(std::make_shared<FaceDetectorViewer>());
     rclcpp::shutdown();
     return 0;
 }
