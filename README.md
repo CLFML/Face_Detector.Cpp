@@ -146,13 +146,13 @@ Before using this library you will need the following packages installed:
 git clone https://github.com/CLFML/Face_Detector.Cpp.git
 ```
 
-2. Maske sure to set the ROS2 switch in CMakeLists.txt
+2. Make sure to set the ROS2 switch in CMakeLists.txt:
 
 ```cmake
 option(CLFML_ROS2_PACKAGE_BUILD "Build a ROS2 package" ON)
 ```
 
-You may need to explicitly override cache:
+You may need to explicitly override the cache:
 ```cmake
 set(CLFML_ROS2_PACKAGE_BUILD ON CACHE BOOL "Build a ROS2 package" FORCE)
 ```
