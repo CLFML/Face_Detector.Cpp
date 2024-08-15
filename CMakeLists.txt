@@ -11,7 +11,7 @@ option(CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS "Build example projects" ON)
 option(CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU "Enable CORAL EDGE_TPU support" OFF)
 
 # Optionally enable ROS2 package build (Requires ROS2 jazzy to be installed!)
-option(CLFML_ROS2_PACKAGE_BUILD "Build a ROS2 package" ON)
+option(CLFML_ROS2_PACKAGE_BUILD "Build a ROS2 package" OFF)
 # set(CLFML_ROS2_PACKAGE_BUILD ON CACHE BOOL "Build a ROS2 package" FORCE) # explicitly override cache
 
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
