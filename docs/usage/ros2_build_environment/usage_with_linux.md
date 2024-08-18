@@ -44,28 +44,33 @@ Note that, whenever build errors occur, and you need to clean the build, use
 
 ```bash
 rm -rf build install log
--rf ~/.ros
+rm -rf ~/.ros
 ```
 
-3. Set up the environment
+3. Source your ROS2 installation:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+4. Set up the environment
 
 ```bash
 source install/setup.bash
 ```
 
-4. With the environment sourced, we can run executables built by colcon. Let’s run the camera node from the examples:
+5. With the environment sourced, we can run executables built by colcon. Let’s run the camera node from the examples:
 
 ```bash
 ros2 run face_detector camera_node
 ```
 
-5. In another terminal, let’s run the face detector node (don’t forget to source the setup script):
-
+5. In another terminal, let’s run the face detector node (don’t forget to source the setup script):6
 ```bash
 ros2 run face_detector face_detector_node
 ```
 
-6. In yet another terminal, let’s run the viewer node:
+7. In yet another terminal, let’s run the viewer node:
 
 ```bash
 ros2 run face_detector face_detector_viewer
