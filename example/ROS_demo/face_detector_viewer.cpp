@@ -127,7 +127,6 @@ private:
         }
 
         // Display the frame
-        // cv::setBackend(cv::CAP_GSTREAMER);        
         cv::imshow("Face Detection Viewer", display_frame);
         cv::waitKey(1);
     }
