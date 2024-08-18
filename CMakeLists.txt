@@ -12,7 +12,6 @@ option(CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU "Enable CORAL EDGE_TPU support" OFF)
 
 # Optionally enable ROS2 package build (Requires ROS2 jazzy to be installed!)
 option(CLFML_ROS2_PACKAGE_BUILD "Build a ROS2 package" OFF)
-# set(CLFML_ROS2_PACKAGE_BUILD ON CACHE BOOL "Build a ROS2 package" FORCE) # explicitly override cache
 
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     set(CMAKE_CXX_STANDARD 17)
@@ -31,16 +30,6 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
 endif()
 
 find_package(OpenCV REQUIRED)
-
-if (CLFML_ROS2_PACKAGE_BUILD)
-    find_package(ament_cmake REQUIRED)
-    find_package(rclcpp REQUIRED)
-    find_package(sensor_msgs REQUIRED)
-    find_package(cv_bridge REQUIRED)
-    find_package(std_msgs REQUIRED)
-    find_package(geometry_msgs REQUIRED)
-    find_package(std_srvs REQUIRED)
-endif()
 
 add_library(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/src/face_detection.cpp)
 add_library(CLFML::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -70,41 +59,53 @@ if(CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU)
                                                       -DCFML_FACE_DETECTOR_CORAL_MODEL_PATH="${FACE_DETECTOR_CORAL_MODEL_PATH}")
 endif()
 
-if (CLFML_ROS2_PACKAGE_BUILD)
-    target_link_libraries(${PROJECT_NAME} ${cv_bridge_LIBRARIES})
-endif()
-
 set(FACE_DETECTOR_CPU_MODEL_PATH ${CMAKE_CURRENT_LIST_DIR}/models/CPU/face_detection.tflite)
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DCFML_FACE_DETECTOR_CPU_MODEL_PATH="${FACE_DETECTOR_CPU_MODEL_PATH}")
 
 set(FACE_DETECTOR_MODEL_DIR ${CMAKE_CURRENT_LIST_DIR}/models/)
 target_compile_definitions(${PROJECT_NAME} PUBLIC -DCFML_FACE_DETECTOR_MODEL_DIR="${FACE_DETECTOR_MODEL_DIR}")
 
-
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+
+if (CLFML_ROS2_PACKAGE_BUILD)
+  find_package(ament_cmake REQUIRED)
+  find_package(rclcpp REQUIRED)
+  find_package(sensor_msgs REQUIRED)
+  find_package(std_msgs REQUIRED)
+  find_package(geometry_msgs REQUIRED)
+  find_package(std_srvs REQUIRED)
+  find_package(cv_bridge REQUIRED)
+  target_link_libraries(${PROJECT_NAME} ${cv_bridge_LIBRARIES})
+  add_executable(camera_node ${CMAKE_CURRENT_LIST_DIR}/bindings/ros2/camera_node.cpp)
+  ament_target_dependencies(camera_node
+    rclcpp
+    sensor_msgs
+    cv_bridge
+    std_msgs
+    geometry_msgs
+    std_srvs
+    OpenCV
+  )
+  add_executable(face_detector_node ${CMAKE_CURRENT_LIST_DIR}/bindings/ros2/face_detector_node.cpp)
+  ament_target_dependencies(face_detector_node
+    rclcpp
+    sensor_msgs
+    cv_bridge
+    std_msgs
+    geometry_msgs
+    std_srvs
+    OpenCV
+  )
+  target_link_libraries(camera_node face_detector)
+  target_link_libraries(face_detector_node face_detector)
+  install(TARGETS
+    camera_node
+    face_detector_node
+    DESTINATION lib/${PROJECT_NAME})
+endif()
 
 if(CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS)
     if (CLFML_ROS2_PACKAGE_BUILD)
-      add_executable(camera_node ${CMAKE_CURRENT_LIST_DIR}/example/ROS_demo/camera_node.cpp)
-      ament_target_dependencies(camera_node
-        rclcpp
-        sensor_msgs
-        cv_bridge
-        std_msgs
-        geometry_msgs
-        std_srvs
-        OpenCV
-      )
-      add_executable(face_detector_node ${CMAKE_CURRENT_LIST_DIR}/example/ROS_demo/face_detector_node.cpp)
-      ament_target_dependencies(face_detector_node
-        rclcpp
-        sensor_msgs
-        cv_bridge
-        std_msgs
-        geometry_msgs
-        std_srvs
-        OpenCV
-      )
       add_executable(face_detector_viewer ${CMAKE_CURRENT_LIST_DIR}/example/ROS_demo/face_detector_viewer.cpp)
       ament_target_dependencies(face_detector_viewer
         rclcpp
@@ -115,26 +116,27 @@ if(CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS)
         std_srvs
         OpenCV
       )
-      # older style of target_link_libraries required to comply with ROS2 ament
-      target_link_libraries(camera_node face_detector)
-      target_link_libraries(face_detector_node face_detector)
       target_link_libraries(face_detector_viewer face_detector)
+      install(TARGETS
+      face_detector_viewer
+      DESTINATION lib/${PROJECT_NAME})      
     else ()
       add_executable(face_roi_demo ${CMAKE_CURRENT_LIST_DIR}/example/face_roi_demo/demo.cpp)
       target_link_libraries(face_roi_demo PUBLIC face_detector)
     endif()
 endif()
 
-if (CLFML_ROS2_PACKAGE_BUILD)
-  install(TARGETS
-    camera_node
-    face_detector_node
-    face_detector_viewer
-    DESTINATION lib/${PROJECT_NAME})
-endif()
+# if (CLFML_ROS2_PACKAGE_BUILD)
+#   install(TARGETS
+#     camera_node
+#     face_detector_node
+#     face_detector_viewer
+#     DESTINATION lib/${PROJECT_NAME})
+# endif()
 
 unset(CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS CACHE)
 
 if (CLFML_ROS2_PACKAGE_BUILD)
   ament_package()
 endif()
+

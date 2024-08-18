@@ -2,6 +2,7 @@
     "name": "face_detector",
     "type": "cmake",
     "cmake-args":[
-        "-DCLFML_ROS2_PACKAGE_BUILD=ON"
+        "-DCLFML_ROS2_PACKAGE_BUILD=ON",
+        "-G Ninja"
     ]
 }
