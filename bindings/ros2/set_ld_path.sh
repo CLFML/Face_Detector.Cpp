@@ -17,6 +17,4 @@ if [ -f "$LIB_PATH" ]; then
     LIB_DIR=$(dirname "$LIB_PATH")
 
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIB_DIR
-else
-    echo "Library $LIB_PATH not found. No changes made."
 fi

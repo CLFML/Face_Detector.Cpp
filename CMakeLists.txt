@@ -14,15 +14,15 @@ option(CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU "Enable CORAL EDGE_TPU support" OFF)
 option(CLFML_ROS2_PACKAGE_BUILD "Build a ROS2 package" OFF)
 
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    set(CMAKE_CXX_STANDARD 17)
-    set(MAIN_PROJECT ON)
+  set(CMAKE_CXX_STANDARD 17)
+  set(MAIN_PROJECT ON)
 else()
-    set(BUILD_EXAMPLE_PROJECTS OFF)
+  set(BUILD_EXAMPLE_PROJECTS OFF)
 endif()
 
 if (POLICY CMP0077)
-    # Allow CMake 3.13+ to override options when using FetchContent / add_subdirectory.
-    cmake_policy(SET CMP0077 NEW)
+  # Allow CMake 3.13+ to override options when using FetchContent / add_subdirectory.
+  cmake_policy(SET CMP0077 NEW)
 endif()
 
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
@@ -39,38 +39,37 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS} ${CMAKE
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
 if (TARGET tensorflow-lite)
-    target_link_libraries(${PROJECT_NAME} tensorflow-lite)
+  target_link_libraries(${PROJECT_NAME} tensorflow-lite)
 else()
 
-    if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows" OR CLFML_FACE_DETECTOR_COMPILE_TENSORFLOW_FROM_SOURCE)
-        include(FetchContent)
-        FetchContent_Declare(
+  if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows" OR CLFML_FACE_DETECTOR_COMPILE_TENSORFLOW_FROM_SOURCE)
+    include(FetchContent)
+    FetchContent_Declare(
         tensorflow_rel_package
         URL https://github.com/tensorflow/tensorflow/archive/refs/tags/v2.16.1.zip
         SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
         SOURCE_SUBDIR tensorflow/lite
     )
-        FetchContent_MakeAvailable(tensorflow_rel_package)
-    else()
-        include(FetchContent)
-        FetchContent_Declare(
+    FetchContent_MakeAvailable(tensorflow_rel_package)
+  else()
+    include(FetchContent)
+    FetchContent_Declare(
         tensorflow_compiled_rel_package
         URL https://github.com/CLFML/TensorFlow_Lite_Compiled/releases/download/v2.16.1/tensorflow_linux_generic_x86_64.zip
         SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
     )
-        FetchContent_MakeAvailable(tensorflow_compiled_rel_package)
-        if(CLFML_ROS2_PACKAGE_BUILD)
-          install(FILES external/tensorflow/lib/libtensorflowlite.so DESTINATION lib/${PROJECT_NAME})
-          install(FILES bindings/ros2/set_ld_path.sh DESTINATION lib/${PROJECT_NAME})
-        endif()
+    FetchContent_MakeAvailable(tensorflow_compiled_rel_package)
+    if(CLFML_ROS2_PACKAGE_BUILD)
+      install(FILES external/tensorflow/lib/libtensorflowlite.so DESTINATION lib/${PROJECT_NAME})
     endif()
-    target_link_libraries(${PROJECT_NAME} tensorflow-lite)
+  endif()
+  target_link_libraries(${PROJECT_NAME} tensorflow-lite)
 endif()
 
 if(CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU)
-    target_link_libraries(${PROJECT_NAME} edgetpu)
-    set(FACE_DETECTOR_CORAL_MODEL_PATH ${CMAKE_CURRENT_LIST_DIR}/models/Coral/face_detection.tflite)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC -DFACE_DETECTOR_ENABLE_CORAL_SUPPORT=1 
+  target_link_libraries(${PROJECT_NAME} edgetpu)
+  set(FACE_DETECTOR_CORAL_MODEL_PATH ${CMAKE_CURRENT_LIST_DIR}/models/Coral/face_detection.tflite)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC -DFACE_DETECTOR_ENABLE_CORAL_SUPPORT=1
                                                       -DCFML_FACE_DETECTOR_CORAL_MODEL_PATH="${FACE_DETECTOR_CORAL_MODEL_PATH}")
 endif()
 
@@ -120,9 +119,9 @@ if (CLFML_ROS2_PACKAGE_BUILD)
 endif()
 
 if(CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS)
-    if (CLFML_ROS2_PACKAGE_BUILD)
-      add_executable(face_detector_viewer ${CMAKE_CURRENT_LIST_DIR}/example/ROS_demo/face_detector_viewer.cpp)
-      ament_target_dependencies(face_detector_viewer
+  if (CLFML_ROS2_PACKAGE_BUILD)
+    add_executable(face_detector_viewer ${CMAKE_CURRENT_LIST_DIR}/example/ROS_demo/face_detector_viewer.cpp)
+    ament_target_dependencies(face_detector_viewer
         rclcpp
         sensor_msgs
         cv_bridge
@@ -131,27 +130,18 @@ if(CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS)
         std_srvs
         OpenCV
       )
-      target_link_libraries(face_detector_viewer face_detector)
-      install(TARGETS
+    target_link_libraries(face_detector_viewer face_detector)
+    install(TARGETS
       face_detector_viewer
-      DESTINATION lib/${PROJECT_NAME})      
-    else ()
-      add_executable(face_roi_demo ${CMAKE_CURRENT_LIST_DIR}/example/face_roi_demo/demo.cpp)
-      target_link_libraries(face_roi_demo PUBLIC face_detector)
-    endif()
+      DESTINATION lib/${PROJECT_NAME})
+  else ()
+    add_executable(face_roi_demo ${CMAKE_CURRENT_LIST_DIR}/example/face_roi_demo/demo.cpp)
+    target_link_libraries(face_roi_demo PUBLIC face_detector)
+  endif()
 endif()
 
-# if (CLFML_ROS2_PACKAGE_BUILD)
-#   install(TARGETS
-#     camera_node
-#     face_detector_node
-#     face_detector_viewer
-#     DESTINATION lib/${PROJECT_NAME})
-# endif()
-
-unset(CLFML_FACE_DETECTOR_BUILD_EXAMPLE_PROJECTS CACHE)
-
 if (CLFML_ROS2_PACKAGE_BUILD)
+  install(FILES bindings/ros2/set_ld_path.sh DESTINATION lib/${PROJECT_NAME})
   ament_package()
 endif()
 
