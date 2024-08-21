@@ -41,14 +41,25 @@ target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 if (TARGET tensorflow-lite)
     target_link_libraries(${PROJECT_NAME} tensorflow-lite)
 else()
-    include(FetchContent)
-    FetchContent_Declare(
+
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows" OR CLFML_FACE_DETECTOR_COMPILE_TENSORFLOW_FROM_SOURCE)
+        include(FetchContent)
+        FetchContent_Declare(
         tensorflow_rel_package
         URL https://github.com/tensorflow/tensorflow/archive/refs/tags/v2.16.1.zip
         SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
         SOURCE_SUBDIR tensorflow/lite
     )
-    FetchContent_MakeAvailable(tensorflow_rel_package)
+        FetchContent_MakeAvailable(tensorflow_rel_package)
+    else()
+        include(FetchContent)
+        FetchContent_Declare(
+        tensorflow_compiled_rel_package
+        URL https://github.com/CLFML/TensorFlow_Lite_Compiled/releases/download/v2.16.1/tensorflow_linux_generic_x86_64.zip
+        SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
+    )
+        FetchContent_MakeAvailable(tensorflow_compiled_rel_package)
+    endif()
     target_link_libraries(${PROJECT_NAME} tensorflow-lite)
 endif()
 
