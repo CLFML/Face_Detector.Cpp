@@ -3,8 +3,9 @@ Face detector using the [BlazeFace Mediapipe model](https://storage.googleapis.c
 
 - Plain C/C++ implementation with minimal dependencies (Tensorflow Lite + OpenCV)
 - Google MediaPipe models without the Mediapipe framework
-- Support for Coral Edge TPU
+- Support for Coral Edge TPU (not supported when using the ROS2 binding)
 - Runs on ARM as well (Tested on RPI 3,4 and 5)
+- ROS2 support
 
 ## API Features
 This library offers support for:
@@ -185,11 +186,10 @@ ros2 run face_detector face_detector_viewer
 
 
 ## Aditional documentation
-See our wiki!
+See our [wiki](https://clfml.github.io/Face_Detector.Cpp/)...
 
 ## Todo
 - Add language bindings for Python, C# and Java
-- Add support for Conan and precompiled libraries (such as precompiled version of TensorFlow Lite)
 - Add support for MakeFiles and Bazel
 - Add Unit-tests 
 
