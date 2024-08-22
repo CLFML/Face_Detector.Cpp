@@ -3,13 +3,16 @@ Face detector using the [BlazeFace Mediapipe model](https://storage.googleapis.c
 
 - Plain C/C++ implementation with minimal dependencies (Tensorflow Lite + OpenCV)
 - Google MediaPipe models without the Mediapipe framework
-- Support for Coral Edge TPU
+- Support for Coral Edge TPU (not supported when using the ROS2 binding)
 - Runs on ARM as well (Tested on RPI 3,4 and 5)
+- ROS2 support
 
 ## API Features
 This library offers support for:
 - Face detection
 - Face ROI (Region of interest) detection
+- 2D Landmarks of the Left eye, Right Eye, Nose tip, Mouth, Left eye tragion and Right eye tragion
+
 
 ### Face detection
 This is some example code for face detection:
@@ -129,13 +132,64 @@ add_subdirectory(Face_Detector.Cpp)
 target_link_libraries(YOUR_EXECUTABLE CLFML::face_detector)
 ```
 
+## Building a ROS2 package with Colcon
+Before using this library you will need the following packages installed:
+- OpenCV
+- ROS2
+- ROS CV bridge
+- Working C++ compiler (GCC, Clang, MSVC (2017 or Higher))
+- CMake
+
+### Running the examples (Ubuntu, CPU)
+
+1. Clone this repo:
+```
+git clone https://github.com/CLFML/Face_Detector.Cpp.git
+```
+
+2. Source your ROS2 installation:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+3. Build the package:
+
+```bash
+colcon build --packages-select face_detector
+```
+
+4. Set up the environment:
+
+```bash
+source install/setup.bash
+```
+
+5. Run the camera node:
+
+```bash
+ros2 run face_detector camera_node
+```
+
+6. In another terminal, run the face detector node (don’t forget to source the setup script):
+
+```bash
+ros2 run face_detector face_detector_node
+```
+
+7. In yet another terminal, run the viewer:
+
+```bash
+ros2 run face_detector face_detector_viewer
+```
+
+
+
 ## Aditional documentation
-See our wiki!
+See our [wiki](https://clfml.github.io/Face_Detector.Cpp/)...
 
 ## Todo
-- Add ROS interface
 - Add language bindings for Python, C# and Java
-- Add support for Conan and precompiled libraries (such as precompiled version of TensorFlow Lite)
 - Add support for MakeFiles and Bazel
 - Add Unit-tests 
 

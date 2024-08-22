@@ -98,7 +98,7 @@ namespace CLFML::FaceDetection
 
         /**
          * @brief Determine whether a face was detected
-         * @return 0 if face was detected, 1 if no face was detected in input frame
+         * @return 0 if face was detected, -1 if no face was detected in input frame
          */
         int detected();
 

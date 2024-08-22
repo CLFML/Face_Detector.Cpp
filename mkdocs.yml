@@ -64,8 +64,11 @@ nav:
       - usage/tpu/using_a_tpu_on_x86_64_linux.md
       - usage/tpu/using_a_tpu_on_arm64_linux.md
       - usage/tpu/using_a_tpu_on_x86_64_windows.md
+    - ROS2 package:
+      - usage/ros2_build_environment/usage_with_linux.md
     - Running the examples:
       - usage/face_roi_demo.md
+      - usage/ROS_demo.md
   - Implementation:
     - about/implementation.md
   - Contributing:

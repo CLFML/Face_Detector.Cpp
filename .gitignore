@@ -40,6 +40,8 @@ cmake-build-release/
 cmake-build-minsizerel/
 build/
 Build/
+log/
+install/
 
 # IDE
 .vscode/

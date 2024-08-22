@@ -99,6 +99,8 @@ Some of the configuration options which can be used to generate the CMake projec
 
 - `CLFML_FACE_DETECTOR_ENABLE_CORAL_TPU`; Enables Coral TPU support (Default=OFF)
 
+- `CLFML_ROS2_PACKAGE_BUILD`; Build a ROS2 (Default=OFF, *Note that colcon is used as the build system.) 
+
 ### Integrating it into your own project
 Here are some CMake snippets which indicate how this project might be included into your own CMake project.
 

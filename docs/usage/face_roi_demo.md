@@ -7,4 +7,3 @@ To build and run this example you need all the prerequisites you would normally 
 - [Windows Guide]()
 - [Mac Os Guide]()
 - [Linux Guide]()
-
