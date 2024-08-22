@@ -31,7 +31,7 @@ public:
         declare_and_get_parameters();
         initialize_camera();
         
-        publisher_ = this->create_publisher<sensor_msgs::msg::Image>("camera/image_raw", 10);
+        publisher_ = this->create_publisher<sensor_msgs::msg::Image>("~/image_raw", 10);
         
         timer_ = this->create_wall_timer(
             std::chrono::milliseconds(static_cast<int>(1000.0 / camera_fps_)),
@@ -71,7 +71,7 @@ private:
         cv::Mat frame;
         if (cam_.read(frame))
         {
-            auto msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", frame).toImageMsg();
+            sensor_msgs::msg::Image::SharedPtr msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", frame).toImageMsg();
             publisher_->publish(*msg);
         }
         else

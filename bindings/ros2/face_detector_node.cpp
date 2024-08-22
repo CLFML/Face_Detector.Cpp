@@ -42,7 +42,7 @@ public:
 private:
     void declare_and_get_parameters()
     {
-        declare_parameter("camera_topic", "/camera/image_raw");
+        declare_parameter("camera_topic", "/camera_node/image_raw");
         declare_parameter("face_detected_topic", "/face_detected");
         declare_parameter("face_roi_topic", "/face_roi");
         declare_parameter("face_landmarks_topic", "/face_landmarks");
@@ -92,7 +92,7 @@ private:
 
     void publish_face_detected()
     {
-        auto face_detected_msg = std_msgs::msg::Int32();
+        std_msgs::msg::Int32 face_detected_msg = std_msgs::msg::Int32();
         face_detected_msg.data = det_.detected() + 1; // +1 because detector returns -1 for no face and 0 for face detected!
         face_detected_pub_->publish(face_detected_msg);
 
@@ -103,7 +103,7 @@ private:
     void publish_face_roi()
     {
         cv::Rect face_roi = det_.get_face_roi();
-        auto roi_msg = sensor_msgs::msg::RegionOfInterest();
+        sensor_msgs::msg::RegionOfInterest roi_msg = sensor_msgs::msg::RegionOfInterest();
         roi_msg.x_offset = face_roi.x;
         roi_msg.y_offset = face_roi.y;
         roi_msg.width = face_roi.width;
@@ -114,9 +114,9 @@ private:
     void publish_face_landmarks()
     {
         std::array<cv::Point, 6> face_keypoints = det_.get_face_landmarks();
-        for (const auto& keypoint : face_keypoints)
+        for (const cv::Point& keypoint : face_keypoints)
         {
-            auto landmark_msg = geometry_msgs::msg::PointStamped();
+            geometry_msgs::msg::PointStamped landmark_msg = geometry_msgs::msg::PointStamped();
             landmark_msg.header.stamp = now();
             landmark_msg.header.frame_id = "camera_frame";
             landmark_msg.point.x = keypoint.x;

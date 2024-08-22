@@ -32,7 +32,7 @@ public:
     FaceDetectorViewer() : Node("face_detector_viewer")
     {
         // Declare parameters for topic names
-        this->declare_parameter("camera_topic", "/camera/image_raw");
+        this->declare_parameter("camera_topic", "/camera_node/image_raw");
         this->declare_parameter("face_detected_topic", "/face_detected");
         this->declare_parameter("face_roi_topic", "/face_roi");
         this->declare_parameter("face_landmarks_topic", "/face_landmarks");
@@ -122,7 +122,7 @@ private:
         }
 
         // Draw face landmarks
-        for (const auto& landmark : face_landmarks_) {
+        for (const cv::Point& landmark : face_landmarks_) {
             cv::circle(display_frame, landmark, 2, cv::Scalar(0, 255, 0), -1);
         }
 
