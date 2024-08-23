@@ -192,6 +192,10 @@ See our [wiki](https://clfml.github.io/Face_Detector.Cpp/)...
 - Add language bindings for Python, C# and Java
 - Add support for MakeFiles and Bazel
 - Add Unit-tests 
+- Add ROS2 package TPU support
+- Drop custom ROS2 camera node and use a generic node, such as v4l2_camera or christianrauch/camera_ros
+- If needed to crunch ROS2 latency: Do not use nodes, put plugins in a container
+
 
 ## License
 This work is licensed under the Apache 2.0 license.
