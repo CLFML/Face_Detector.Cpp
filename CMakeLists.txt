@@ -53,11 +53,19 @@ else()
     FetchContent_MakeAvailable(tensorflow_rel_package)
   else()
     include(FetchContent)
-    FetchContent_Declare(
+    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
+      FetchContent_Declare(
+        tensorflow_compiled_rel_package
+        URL https://github.com/CLFML/TensorFlow_Lite_Compiled/releases/download/v2.16.1/tensorflow_linux_generic_aarch64.zip
+        SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
+      )
+    else()
+      FetchContent_Declare(
         tensorflow_compiled_rel_package
         URL https://github.com/CLFML/TensorFlow_Lite_Compiled/releases/download/v2.16.1/tensorflow_linux_generic_x86_64.zip
         SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
-    )
+      )
+    endif()
     FetchContent_MakeAvailable(tensorflow_compiled_rel_package)
     if(CLFML_ROS2_PACKAGE_BUILD)
       install(FILES external/tensorflow/lib/libtensorflowlite.so DESTINATION lib/${PROJECT_NAME})
