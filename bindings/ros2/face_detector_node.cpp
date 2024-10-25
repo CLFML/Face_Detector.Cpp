@@ -34,7 +34,7 @@ public:
     FaceDetectorNode() : Node("face_detector_node")
     {
         declare_and_get_parameters();
-        det_.load_model(CFML_FACE_DETECTOR_CPU_MODEL_PATH);
+        det_.load_model(CLFML_FACE_DETECTOR_CPU_MODEL_PATH);
         setup_communication();
         detection_enabled_ = true;
     }
