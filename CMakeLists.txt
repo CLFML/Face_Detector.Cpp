@@ -38,10 +38,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS} ${CMAKE
 
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
+# Check if Tensorflow-lite isn't already used in the project
 if (TARGET tensorflow-lite)
+  # Tensorflow-lite is already used, let's link the library code with the existing tensorflow-lite target
   target_link_libraries(${PROJECT_NAME} tensorflow-lite)
 else()
-
+  # Tensorflow-lite has to be downloaded (and maybe even added as compilation target)
+  # There are no precompiled Windows tensorflow-lite packages, they have to compile from source for now
   if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows" OR CLFML_FACE_DETECTOR_COMPILE_TENSORFLOW_FROM_SOURCE)
     include(FetchContent)
     FetchContent_Declare(
@@ -52,6 +55,8 @@ else()
     )
     FetchContent_MakeAvailable(tensorflow_rel_package)
   else()
+    # Check if we can use any of the precompiled tensorflow lite packages
+    # https://github.com/CLFML/TensorFlow_Lite_Compiled
     include(FetchContent)
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
       FetchContent_Declare(
@@ -60,15 +65,48 @@ else()
         SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
       )
     else()
-      FetchContent_Declare(
-        tensorflow_compiled_rel_package
-        URL https://github.com/CLFML/TensorFlow_Lite_Compiled/releases/download/v2.16.1/tensorflow_linux_generic_x86_64.zip
-        SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
+      # Get the CPU compatible instructionset(s)
+      execute_process(
+        COMMAND lscpu
+        OUTPUT_VARIABLE CLFML_FACE_DETECTOR_CPU_INFO
+        OUTPUT_STRIP_TRAILING_WHITESPACE
       )
-    endif()
-    FetchContent_MakeAvailable(tensorflow_compiled_rel_package)
-    if(CLFML_ROS2_PACKAGE_BUILD)
-      install(FILES external/tensorflow/lib/libtensorflowlite.so DESTINATION lib/${PROJECT_NAME})
+      if(CLFML_FACE_DETECTOR_CPU_INFO MATCHES "avx2")
+        message(STATUS "CLFML Face_Detector.Cpp: CPU supports AVX2")
+        # Download the AVX2 compatible precompiled tensorflow lite package
+        FetchContent_Declare(
+          tensorflow_compiled_rel_package
+          URL https://github.com/CLFML/TensorFlow_Lite_Compiled/releases/download/v2.16.1/tensorflow_linux_avx2_x86_64.zip
+          SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
+        )
+        FetchContent_MakeAvailable(tensorflow_compiled_rel_package)
+        if(CLFML_ROS2_PACKAGE_BUILD)
+          install(FILES external/tensorflow/lib/libtensorflowlite.so DESTINATION lib/${PROJECT_NAME})
+        endif()
+ 
+      elseif(CLFML_FACE_DETECTOR_CPU_INFO MATCHES "avx")
+        message(STATUS "CLFML Face_Detector.Cpp: CPU supports AVX")
+        # Download the AVX compatible precompiled tensorflow lite package
+        FetchContent_Declare(
+          tensorflow_compiled_rel_package
+          URL https://github.com/CLFML/TensorFlow_Lite_Compiled/releases/download/v2.16.1/tensorflow_linux_generic_x86_64.zip
+          SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
+        )
+        FetchContent_MakeAvailable(tensorflow_compiled_rel_package)
+        if(CLFML_ROS2_PACKAGE_BUILD)
+          install(FILES external/tensorflow/lib/libtensorflowlite.so DESTINATION lib/${PROJECT_NAME})
+        endif()
+      else()
+        message(STATUS "CLFML Face_Detector.Cpp: CPU doesn't support AVX or AVX2; Compiling from source...")
+        # Download and build from source
+        FetchContent_Declare(
+        tensorflow_rel_package
+        URL https://github.com/tensorflow/tensorflow/archive/refs/tags/v2.16.1.zip
+        SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/tensorflow
+        SOURCE_SUBDIR tensorflow/lite
+       )
+        FetchContent_MakeAvailable(tensorflow_rel_package)
+      endif()
     endif()
   endif()
   target_link_libraries(${PROJECT_NAME} tensorflow-lite)
