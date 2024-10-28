@@ -51,10 +51,10 @@ int main(int argc, char *argv[])
 
     /* UNCOMMENT this line when using a TPU*/
     /* Load model and initialize inference runtime with Coral TPU delegate */
-    //det.load_model(CFML_FACE_DETECTOR_CORAL_MODEL_PATH, CLFML::FaceDetection::face_detector_delegate::CORAL_TPU);
+    //det.load_model(CLFML_FACE_DETECTOR_CORAL_MODEL_PATH, CLFML::FaceDetection::face_detector_delegate::CORAL_TPU);
     
     /* COMMENT this line when using a TPU, when using CPU leave it uncommented! As this will prepare the library for CPU inference! */
-    det.load_model(CFML_FACE_DETECTOR_CPU_MODEL_PATH);
+    det.load_model(CLFML_FACE_DETECTOR_CPU_MODEL_PATH);
 
 
     /* Create window to show the face roi */
