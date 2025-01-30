@@ -146,10 +146,8 @@ if (CLFML_ROS2_PACKAGE_BUILD)
     std_srvs
     OpenCV
   )
-  target_link_libraries(camera_node face_detector)
   target_link_libraries(face_detector_node face_detector)
   install(TARGETS
-    camera_node
     face_detector_node
     DESTINATION lib/${PROJECT_NAME})
 endif()
