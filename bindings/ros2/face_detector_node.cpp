@@ -42,7 +42,7 @@ public:
 private:
     void declare_and_get_parameters()
     {
-        declare_parameter("camera_topic", "/camera_node/image_raw");
+        declare_parameter("camera_topic", "/image_raw");
         declare_parameter("face_detected_topic", "/face_detected");
         declare_parameter("face_roi_topic", "/face_roi");
         declare_parameter("face_landmarks_topic", "/face_landmarks");

@@ -153,31 +153,36 @@ git clone https://github.com/CLFML/Face_Detector.Cpp.git
 source /opt/ros/jazzy/setup.bash
 ```
 
-3. Build the package:
+3. Install the dependencies:
+```bash
+rosdep install --from-paths src -y --ignore-src
+``` 
+
+4. Build the package:
 
 ```bash
 colcon build --packages-select face_detector
 ```
 
-4. Set up the environment:
+5. Set up the environment:
 
 ```bash
 source install/setup.bash
 ```
 
-5. Run the camera node:
+6. Run the camera node:
 
 ```bash
-ros2 run face_detector camera_node
+ros2 run v4l2_camera v4l2_camera_node
 ```
 
-6. In another terminal, run the face detector node (don’t forget to source the setup script):
+7. In another terminal, run the face detector node (don’t forget to source the setup script):
 
 ```bash
 ros2 run face_detector face_detector_node
 ```
 
-7. In yet another terminal, run the viewer:
+8. In yet another terminal, run the viewer:
 
 ```bash
 ros2 run face_detector face_detector_viewer
