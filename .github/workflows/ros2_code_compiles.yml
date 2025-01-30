@@ -1,4 +1,4 @@
-name: code_compiles
+name: ros_code_compiles
 
 on:
   push:
