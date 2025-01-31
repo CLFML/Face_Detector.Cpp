@@ -95,9 +95,6 @@ private:
         std_msgs::msg::Int32 face_detected_msg = std_msgs::msg::Int32();
         face_detected_msg.data = det_.detected() + 1; // +1 because detector returns -1 for no face and 0 for face detected!
         face_detected_pub_->publish(face_detected_msg);
-
-        if (face_detected_msg.data)
-            RCLCPP_INFO(get_logger(), "face detected");
     }
 
     void publish_face_roi()
