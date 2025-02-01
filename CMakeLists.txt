@@ -136,16 +136,6 @@ if (CLFML_ROS2_PACKAGE_BUILD)
   find_package(std_srvs REQUIRED)
   find_package(cv_bridge REQUIRED)
   target_link_libraries(${PROJECT_NAME} ${cv_bridge_LIBRARIES})
-  add_executable(camera_node ${CMAKE_CURRENT_LIST_DIR}/bindings/ros2/camera_node.cpp)
-  ament_target_dependencies(camera_node
-    rclcpp
-    sensor_msgs
-    cv_bridge
-    std_msgs
-    geometry_msgs
-    std_srvs
-    OpenCV
-  )
   add_executable(face_detector_node ${CMAKE_CURRENT_LIST_DIR}/bindings/ros2/face_detector_node.cpp)
   ament_target_dependencies(face_detector_node
     rclcpp
@@ -156,10 +146,8 @@ if (CLFML_ROS2_PACKAGE_BUILD)
     std_srvs
     OpenCV
   )
-  target_link_libraries(camera_node face_detector)
   target_link_libraries(face_detector_node face_detector)
   install(TARGETS
-    camera_node
     face_detector_node
     DESTINATION lib/${PROJECT_NAME})
 endif()

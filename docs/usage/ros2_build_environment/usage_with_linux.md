@@ -34,7 +34,18 @@ git clone https://github.com/CLFML/Face_Detector.Cpp.git
 
 2. Open the cloned repo folder in a terminal
 
-Build the package with more verbose output
+3. Source your ROS2 installation:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+4. Install the ros2 dependencies:
+```bash
+rosdep install --from-paths src -y --ignore-src
+```
+
+5. Build the package with more verbose output
 
 ```bash
 colcon build --event-handlers console_direct+ --packages-select face_detector
@@ -47,25 +58,19 @@ rm -rf build install log
 rm -rf ~/.ros
 ```
 
-3. Source your ROS2 installation:
-
-```bash
-source /opt/ros/jazzy/setup.bash
-```
-
-4. Set up the environment
+6. Set up the environment
 
 ```bash
 source install/setup.bash
 ```
 
-5. With the environment sourced, we can run executables built by colcon. Let’s run the camera node from the examples:
+7. With the environment sourced, we can run executables built by colcon. Let’s run the camera node from the examples:
 
 ```bash
-ros2 run face_detector camera_node
+ros2 run v4l2_camera v4l2_camera_node
 ```
 
-5. In another terminal, let’s run the face detector node (don’t forget to source the setup script):6
+8. In another terminal, let’s run the face detector node (don’t forget to source the setup script):6
 ```bash
 ros2 run face_detector face_detector_node
 ```

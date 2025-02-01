@@ -42,7 +42,7 @@ public:
 private:
     void declare_and_get_parameters()
     {
-        declare_parameter("camera_topic", "/camera_node/image_raw");
+        declare_parameter("camera_topic", "/image_raw");
         declare_parameter("face_detected_topic", "/face_detected");
         declare_parameter("face_roi_topic", "/face_roi");
         declare_parameter("face_landmarks_topic", "/face_landmarks");
@@ -95,9 +95,6 @@ private:
         std_msgs::msg::Int32 face_detected_msg = std_msgs::msg::Int32();
         face_detected_msg.data = det_.detected() + 1; // +1 because detector returns -1 for no face and 0 for face detected!
         face_detected_pub_->publish(face_detected_msg);
-
-        if (face_detected_msg.data)
-            RCLCPP_INFO(get_logger(), "face detected");
     }
 
     void publish_face_roi()
